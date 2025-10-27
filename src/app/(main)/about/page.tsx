@@ -22,7 +22,7 @@ export default function AboutPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">About The Project</h1>
+        <h1 className="text-3xl font-bold tracking-tight">About VigilanteAI</h1>
         <p className="text-muted-foreground mt-1">
           Information about the project, the guide, and the talented team behind
           it.
@@ -35,16 +35,7 @@ export default function AboutPage() {
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
           <p>
-            <span className="font-semibold text-foreground">Project:</span>{' '}
-            Project - 1
-          </p>
-          <p>
-            <span className="font-semibold text-foreground">Semester:</span> 7th
-            Semester
-          </p>
-          <p className="mt-4">
-            This application, VigilanteAI, is an AI-powered web vulnerability
-            scanner designed to proactively identify and report security threats.
+            VigilanteAI is an AI-powered web vulnerability scanner developed to proactively identify, analyze, and report potential security threats across web applications. This project combines advanced artificial intelligence with traditional cybersecurity principles to assist researchers, law enforcement agencies, and cybersecurity professionals in early threat detection and system hardening.
           </p>
         </CardContent>
       </Card>
