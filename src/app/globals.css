@@ -8,30 +8,30 @@ body {
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 99%; /* #fcfcfc - near white */
+    --foreground: 240 10% 3.9%; /* #09090b - near black */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 271 76% 53%; /* #7b2cbf */
-    --primary-foreground: 0 0% 98%;
-    --secondary: 220 10% 96%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 220 10% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 262 100% 75%; /* #c77dff */
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 349 97% 31%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 10% 88%;
-    --input: 220 10% 88%;
-    --ring: 271 76% 53%;
-    --chart-1: 271 76% 53%; /* purple */
-    --chart-2: 349 97% 31%; /* red */
-    --chart-3: 262 100% 75%; /* lavender */
-    --chart-4: 266 58% 66%; /* #9d4edd */
-    --chart-5: 275 79% 30%; /* #3c096c */
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 359 81% 43%; /* #a4161a - Ruby Red */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 359 74% 53%; /* #e5383b - Brighter Red */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 358 89% 48%; /* #ba181b - Another Red */
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 359 81% 43%;
+    --chart-1: 359 81% 43%; /* Ruby Red */
+    --chart-2: 358 89% 48%; /* Another Red */
+    --chart-3: 359 74% 53%; /* Brighter Red */
+    --chart-4: 358 89% 22%; /* Darker Red */
+    --chart-5: 0 0% 63%;   /* Grey for neutral */
     --radius: 0.5rem;
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222.2 84% 4.9%;
@@ -43,30 +43,30 @@ body {
     --sidebar-ring: 271 76% 53%;
   }
   .dark {
-    --background: 270 100% 8%; /* #10002b */
-    --foreground: 210 40% 98%;
-    --card: 270 100% 13%; /* #240046 */
-    --card-foreground: 210 40% 98%;
-    --popover: 270 100% 8%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 271 76% 53%; /* #7b2cbf */
-    --primary-foreground: 0 0% 98%;
-    --secondary: 266 58% 66%; /* #9d4edd */
-    --secondary-foreground: 210 40% 98%;
-    --muted: 275 79% 23%; /* #3c096c */
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 262 100% 75%; /* #c77dff */
-    --accent-foreground: 210 40% 98%;
-    --destructive: 349 97% 41%; /* #9a031e - from previous palette for contrast */
-    --destructive-foreground: 0 0% 98%;
-    --border: 275 79% 23%;
-    --input: 275 79% 23%;
-    --ring: 262 100% 75%;
-    --chart-1: 271 76% 53%; /* purple */
-    --chart-2: 349 97% 41%; /* red */
-    --chart-3: 262 100% 75%; /* lavender */
-    --chart-4: 266 58% 66%; /* lighter purple */
-    --chart-5: 278 100% 84%; /* #e0aaff */
+    --background: 300 6% 4%; /* #0b090a - Rich Black */
+    --foreground: 300 7% 96%; /* #f5f3f4 - White Coffee */
+    --card: 210 9% 8%; /* #161a1d - Eerie Black */
+    --card-foreground: 300 7% 96%;
+    --popover: 300 6% 4%;
+    --popover-foreground: 300 7% 96%;
+    --primary: 359 81% 43%; /* #a4161a - Ruby Red */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 359 74% 53%; /* #e5383b - Brighter Red */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 358 89% 22%; /* Darker version of #ba181b */
+    --muted-foreground: 300 7% 68%; /* #b1a7a6 - Silver Pink */
+    --accent: 359 74% 53%; /* #e5383b - Brighter Red */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 358 89% 48%; /* #ba181b */
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 9% 15%; /* Darker grey for borders */
+    --input: 210 9% 15%;
+    --ring: 359 81% 43%; /* #a4161a - Ruby Red */
+    --chart-1: 359 81% 43%; /* Ruby Red */
+    --chart-2: 358 89% 48%; /* Another Red */
+    --chart-3: 359 74% 53%; /* Brighter Red */
+    --chart-4: 359 91% 37%; /* #660708 - Blood Red */
+    --chart-5: 0 0% 83%;   /* #d3d3d3 - Light Gray */
     --sidebar-background: 270 100% 10%;
     --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 271 76% 53%;
