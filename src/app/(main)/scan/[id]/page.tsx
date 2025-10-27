@@ -34,12 +34,11 @@ export default function ScanPage({ params }: { params: { id: string } }) {
 
   const { data: scan, isLoading, error } = useDoc<Scan>(scanRef);
 
-  if (isLoading || !scan) {
+  if (isLoading || (!scan && !error)) {
     return <ScanLoading />;
   }
 
-  // After loading, if there's an error, it's a 404
-  if (error) {
+  if (error || !scan) {
     notFound();
   }
 
@@ -75,7 +74,7 @@ export default function ScanPage({ params }: { params: { id: string } }) {
       <Separator />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Issues</CardTitle>
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
@@ -85,7 +84,7 @@ export default function ScanPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
         {Object.entries(severityCounts).map(([severity, count]) => (
-           <Card key={severity}>
+           <Card key={severity} className="transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
              <CardTitle className="text-sm font-medium">{severity}</CardTitle>
            </CardHeader>
