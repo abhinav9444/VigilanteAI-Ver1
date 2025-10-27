@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -22,8 +23,7 @@ export default function AboutPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">About VigilanteAI</h1>
         <p className="text-muted-foreground mt-1">
-          Information about the project, the guide, and the talented team behind
-          it.
+          This project, developed as part of the 7th-semester curriculum, is a collaborative academic effort focused on exploring AI-driven web vulnerability detection under faculty supervision.
         </p>
       </div>
 
