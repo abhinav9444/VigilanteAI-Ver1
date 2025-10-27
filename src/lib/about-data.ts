@@ -17,7 +17,7 @@ export type ProjectGuide = {
 export const teamMembers: TeamMember[] = [
   {
     name: 'Abhinav Kumar Singh',
-    rollNumber: '21053229',
+    rollNumber: '22051564',
     linkedin: 'https://www.linkedin.com/in/abhinavkrsingh03/',
     imageUrl: 'https://picsum.photos/seed/dev1/200/200',
   },
