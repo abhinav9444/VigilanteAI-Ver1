@@ -109,7 +109,11 @@ export function AiAssistant({ scanDetails }: { scanDetails: string }) {
                       : 'bg-muted'
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  {message.role === 'assistant' ? (
+                     <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: message.content.replace(/\n/g, '<br />') }} />
+                  ) : (
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                  )}
                 </div>
                 {message.role === 'user' && (
                   <Avatar className="h-8 w-8">
