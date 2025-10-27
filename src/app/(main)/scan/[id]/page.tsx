@@ -7,20 +7,16 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   AlertCircle,
   ShieldCheck,
-  Clock,
-  Download,
 } from 'lucide-react';
 import { ScanSummary } from '@/components/scan/scan-summary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VulnerabilityDetails } from '@/components/scan/vulnerability-details';
 import { AiAssistant } from '@/components/scan/ai-assistant';
-import { Button } from '@/components/ui/button';
-import { Vulnerability } from '@/lib/definitions';
 import { Separator } from '@/components/ui/separator';
+import { ReportHeader } from '@/components/scan/report-header';
 
 export default async function ScanPage({ params }: { params: { id: string } }) {
   const scan = await getScanById(params.id);
@@ -52,27 +48,8 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
   const totalVulnerabilities = scan.vulnerabilities.length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight truncate max-w-xl">
-            Scan Report for {scan.url}
-          </h1>
-          <p className="text-muted-foreground">
-            Generated on {new Date(scan.completedAt!).toLocaleString()}
-          </p>
-        </div>
-        <div className="flex gap-2">
-            <Button variant="outline">
-                <Download className="mr-2 h-4 w-4" />
-                Export PDF
-            </Button>
-            <Button variant="outline">
-                <Download className="mr-2 h-4 w-4" />
-                Export CSV
-            </Button>
-        </div>
-      </div>
+    <div id="report-content" className="space-y-6">
+      <ReportHeader scan={scan} />
       
       <Separator />
 
@@ -139,6 +116,9 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
           <AiAssistant scanDetails={JSON.stringify(scan, null, 2)} />
         </TabsContent>
       </Tabs>
+      <footer className="py-4 text-center text-xs text-muted-foreground">
+        &copy; {new Date().getFullYear()} VigilanteAI. All rights reserved.
+      </footer>
     </div>
   );
 }
