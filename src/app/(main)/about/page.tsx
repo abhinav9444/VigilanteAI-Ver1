@@ -11,8 +11,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Linkedin, Link as LinkIcon } from 'lucide-react';
-import Link from 'next/link';
+import { Linkedin, Link as LinkIcon, Heart } from 'lucide-react';
 import { teamMembers, projectGuide } from '@/lib/about-data';
 
 export default function AboutPage() {
@@ -138,6 +137,19 @@ export default function AboutPage() {
           ))}
         </div>
       </div>
+
+      <Separator />
+
+      <footer className="text-center text-muted-foreground py-8">
+        <p className="flex items-center justify-center gap-2 text-sm">
+          Crafted with
+          <span className="relative flex h-5 w-5">
+            <Heart className="absolute inline-flex h-full w-full animate-ping text-red-400 opacity-75" />
+            <Heart className="relative inline-flex h-5 w-5 fill-red-500 text-red-500" />
+          </span>
+          and cutting-edge technology.
+        </p>
+      </footer>
     </div>
   );
 }
