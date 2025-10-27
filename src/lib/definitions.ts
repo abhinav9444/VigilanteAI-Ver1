@@ -1,3 +1,5 @@
+import type { Timestamp } from 'firebase/firestore';
+
 export type Vulnerability = {
   id: string;
   name: string;
@@ -12,8 +14,8 @@ export type Scan = {
   id: string;
   url: string;
   status: 'Queued' | 'Scanning' | 'Completed' | 'Failed';
-  createdAt: string;
-  completedAt?: string;
+  createdAt: Timestamp | string;
+  completedAt?: Timestamp | string;
   vulnerabilities: Vulnerability[];
   summary?: string;
 };

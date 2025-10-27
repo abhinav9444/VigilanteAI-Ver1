@@ -14,12 +14,10 @@ import { Rocket, Loader2, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useEffect, useState, useRef, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  createScan,
-  updateScanStatus,
-  MOCK_SCANS,
-} from '@/lib/mock-data';
 import { ScrollArea } from '../ui/scroll-area';
+import { useUser, useFirestore } from '@/firebase';
+import { addDoc, collection, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
+import { MOCK_VULNERABILITIES } from '@/lib/mock-data';
 
 const SCAN_LOGS = [
   'Target confirmed. Initializing scanners...',
@@ -40,6 +38,8 @@ export function ScanForm() {
   const [logs, setLogs] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const urlRef = useRef<HTMLInputElement>(null);
+  const { user } = useUser();
+  const firestore = useFirestore();
 
   useEffect(() => {
     if (isScanning) {
@@ -71,6 +71,10 @@ export function ScanForm() {
     event.preventDefault();
     const url = urlRef.current?.value;
 
+    if (!user) {
+      setError('You must be logged in to start a scan.');
+      return;
+    }
     if (!url) {
       setError('URL is required');
       return;
@@ -80,10 +84,16 @@ export function ScanForm() {
     setIsScanning(true);
 
     try {
-      const newScan = await createScan(url);
-      MOCK_SCANS.unshift(newScan);
-      await updateScanStatus(newScan.id, 'Scanning');
+      // 1. Create a new scan document in Firestore
+      const scansCollection = collection(firestore, 'users', user.uid, 'scans');
+      const scanDocRef = await addDoc(scansCollection, {
+        url: url,
+        status: 'Scanning',
+        createdAt: serverTimestamp(),
+        vulnerabilities: [],
+      });
 
+      // 2. Simulate the scan process
       const totalDelay = 15000;
       const steps = SCAN_LOGS.length;
       const delayPerStep = totalDelay / steps;
@@ -91,12 +101,20 @@ export function ScanForm() {
       for (let i = 0; i < steps; i++) {
         await new Promise((resolve) => setTimeout(resolve, delayPerStep));
       }
+      
+      // 3. Update the document with the final results
+      await updateDoc(doc(firestore, 'users', user.uid, 'scans', scanDocRef.id), {
+        status: 'Completed',
+        completedAt: serverTimestamp(),
+        vulnerabilities: MOCK_VULNERABILITIES.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * MOCK_VULNERABILITIES.length) + 1),
+      });
 
-      await updateScanStatus(newScan.id, 'Completed');
 
-      router.push(`/scan/${newScan.id}`);
-    } catch (err) {
-      setError('Failed to start scan.');
+      // 4. Redirect to the results page
+      router.push(`/scan/${scanDocRef.id}`);
+
+    } catch (err: any) {
+      setError('Failed to start scan. Please try again.');
       console.error(err);
       setIsScanning(false);
     }
@@ -127,7 +145,7 @@ export function ScanForm() {
               <Button
                 type="submit"
                 className="w-full sm:w-auto"
-                disabled={isScanning}
+                disabled={isScanning || !user}
               >
                 {isScanning ? (
                   <>

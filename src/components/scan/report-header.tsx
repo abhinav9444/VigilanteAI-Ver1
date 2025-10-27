@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useUser, useFirestore } from '@/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, Timestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Download, Loader2 } from 'lucide-react';
 import { Scan } from '@/lib/definitions';
@@ -44,6 +44,12 @@ const addFooters = (pdf: jsPDF) => {
             pdf.internal.pageSize.height - 10
         );
     }
+};
+
+const formatDate = (timestamp: Timestamp | string | undefined) => {
+    if (!timestamp) return 'N/A';
+    if (typeof timestamp === 'string') return new Date(timestamp).toLocaleString();
+    return timestamp.toDate().toLocaleString();
 };
 
 
@@ -92,7 +98,7 @@ export function ReportHeader({ scan }: { scan: Scan }) {
         pdf.setFontSize(12);
         pdf.setFont('helvetica', 'normal');
         pdf.text(`Target URL: ${scan.url}`, pageWidth / 2, 70, { align: 'center' });
-        pdf.text(`Date: ${new Date(scan.completedAt!).toLocaleString()}`, pageWidth / 2, 80, { align: 'center' });
+        pdf.text(`Date: ${formatDate(scan.completedAt)}`, pageWidth / 2, 80, { align: 'center' });
         
         pdf.setLineWidth(0.5);
         pdf.line(margin, 100, pageWidth - margin, 100);
@@ -223,7 +229,7 @@ export function ReportHeader({ scan }: { scan: Scan }) {
           {scan.url}
         </h1>
         <p className="text-muted-foreground mt-1">
-          Generated on {new Date(scan.completedAt!).toLocaleString()}
+          Generated on {formatDate(scan.completedAt)}
         </p>
          <div className="mt-4">
             {profile ? (

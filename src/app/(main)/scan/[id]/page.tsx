@@ -1,5 +1,6 @@
+'use client';
+
 import { notFound } from 'next/navigation';
-import { getScanById } from '@/lib/mock-data';
 import {
   Card,
   CardContent,
@@ -17,24 +18,44 @@ import { VulnerabilityDetails } from '@/components/scan/vulnerability-details';
 import { AiAssistant } from '@/components/scan/ai-assistant';
 import { Separator } from '@/components/ui/separator';
 import { ReportHeader } from '@/components/scan/report-header';
+import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import type { Scan } from '@/lib/definitions';
+import ScanLoading from './loading';
 
-export default async function ScanPage({ params }: { params: { id: string } }) {
-  const scan = await getScanById(params.id);
+export default function ScanPage({ params }: { params: { id: string } }) {
+  const { user } = useUser();
+  const firestore = useFirestore();
 
-  if (!scan) {
+  const scanRef = useMemoFirebase(() => {
+    if (!user) return null;
+    return doc(firestore, 'users', user.uid, 'scans', params.id);
+  }, [user, firestore, params.id]);
+
+  const { data: scan, isLoading, error } = useDoc<Scan>(scanRef);
+
+  if (isLoading) {
+    return <ScanLoading />;
+  }
+
+  // After loading, if there's an error or no data, it's a 404
+  if (error || !scan) {
     notFound();
   }
 
-  const criticalCount = scan.vulnerabilities.filter(
+  // Ensure vulnerabilities is an array
+  const vulnerabilities = scan.vulnerabilities || [];
+
+  const criticalCount = vulnerabilities.filter(
     (v) => v.severity === 'Critical'
   ).length;
-  const highCount = scan.vulnerabilities.filter(
+  const highCount = vulnerabilities.filter(
     (v) => v.severity === 'High'
   ).length;
-  const mediumCount = scan.vulnerabilities.filter(
+  const mediumCount = vulnerabilities.filter(
     (v) => v.severity === 'Medium'
   ).length;
-  const lowCount = scan.vulnerabilities.filter(
+  const lowCount = vulnerabilities.filter(
     (v) => v.severity === 'Low'
   ).length;
 
@@ -45,7 +66,7 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
     Low: lowCount,
   };
 
-  const totalVulnerabilities = scan.vulnerabilities.length;
+  const totalVulnerabilities = vulnerabilities.length;
 
   return (
     <div id="report-content" className="space-y-6">
@@ -93,9 +114,9 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {scan.vulnerabilities.length > 0 ? (
+              {vulnerabilities.length > 0 ? (
                 <VulnerabilityDetails
-                  vulnerabilities={scan.vulnerabilities}
+                  vulnerabilities={vulnerabilities}
                   scanOutput={JSON.stringify(scan, null, 2)}
                 />
               ) : (

@@ -19,10 +19,10 @@ import {
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { ArrowUpRight, Loader2 } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, limit } from 'firebase/firestore';
+import { collection, query, orderBy, limit, Timestamp } from 'firebase/firestore';
 import type { Scan } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -40,6 +40,13 @@ export default function DashboardPage() {
   }, [user, firestore]);
 
   const { data: recentScans, isLoading } = useCollection<Scan>(scansQuery);
+  
+  const formatDate = (timestamp: Timestamp | string | undefined) => {
+    if (!timestamp) return 'N/A';
+    if (typeof timestamp === 'string') return new Date(timestamp).toLocaleDateString();
+    return timestamp.toDate().toLocaleDateString();
+  };
+
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
@@ -102,7 +109,7 @@ export default function DashboardPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {new Date(scan.createdAt).toLocaleDateString()}
+                      {formatDate(scan.createdAt)}
                     </TableCell>
                     <TableCell>
                       <Button

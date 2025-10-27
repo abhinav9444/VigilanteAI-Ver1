@@ -19,9 +19,9 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { File, Loader2 } from 'lucide-react';
+import { File } from 'lucide-react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
 import type { Scan } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -39,6 +39,12 @@ export default function HistoryPage() {
   }, [user, firestore]);
 
   const { data: scans, isLoading } = useCollection<Scan>(scansQuery);
+  
+  const formatDate = (timestamp: Timestamp | string | undefined) => {
+    if (!timestamp) return 'N/A';
+    if (typeof timestamp === 'string') return new Date(timestamp).toLocaleString();
+    return timestamp.toDate().toLocaleString();
+  };
 
   return (
     <Card>
@@ -94,7 +100,7 @@ export default function HistoryPage() {
                   </TableCell>
                   <TableCell>{scan.vulnerabilities.length}</TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {new Date(scan.createdAt).toLocaleString()}
+                    {formatDate(scan.createdAt)}
                   </TableCell>
                   <TableCell>
                     <Button asChild size="sm" variant="outline">
