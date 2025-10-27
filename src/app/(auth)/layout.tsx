@@ -1,6 +1,10 @@
+'use client';
+
 import { VigilanteAiLogo } from '@/components/logo';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
+import { useTheme } from "next-themes";
+import { useEffect } from 'react';
 
 export default function AuthLayout({
   children,
@@ -10,6 +14,12 @@ export default function AuthLayout({
   const authBgImage = PlaceHolderImages.find(
     (img) => img.id === 'auth-background'
   );
+  // Auth pages look best in dark mode
+  const { setTheme } = useTheme();
+  useEffect(() => {
+    setTheme('dark');
+  }, [setTheme]);
+
   return (
     <div className="flex min-h-screen w-full">
       <div className="relative hidden w-1/2 flex-col justify-between bg-primary p-8 text-primary-foreground lg:flex">
@@ -18,7 +28,7 @@ export default function AuthLayout({
             src={authBgImage.imageUrl}
             alt={authBgImage.description}
             fill
-            className="object-cover opacity-20"
+            className="object-cover opacity-10"
             data-ai-hint={authBgImage.imageHint}
           />
         )}
