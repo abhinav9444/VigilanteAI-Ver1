@@ -1,0 +1,205 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user account in the system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "username": {
+          "type": "string",
+          "description": "The username of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "role": {
+          "type": "string",
+          "description": "The role of the user (e.g., Admin, User)."
+        },
+        "googleId": {
+          "type": "string",
+          "description": "Google ID of the user, used for Google Login."
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "email",
+        "firstName",
+        "lastName",
+        "role"
+      ]
+    },
+    "Scan": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Scan",
+      "type": "object",
+      "description": "Represents a website vulnerability scan.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the scan entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Scan).  The user that initiated the scan."
+        },
+        "websiteUrl": {
+          "type": "string",
+          "description": "The URL of the website being scanned."
+        },
+        "status": {
+          "type": "string",
+          "description": "The status of the scan (e.g., pending, running, completed, failed)."
+        },
+        "startTime": {
+          "type": "string",
+          "description": "The date and time when the scan started.",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "description": "The date and time when the scan ended.",
+          "format": "date-time"
+        },
+        "results": {
+          "type": "string",
+          "description": "JSON blob of scan results."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "websiteUrl",
+        "status",
+        "startTime"
+      ]
+    },
+    "Report": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Report",
+      "type": "object",
+      "description": "Represents a report generated from a scan.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the report entity."
+        },
+        "scanId": {
+          "type": "string",
+          "description": "Reference to Scan. (Relationship: Scan 1:N Report).  The scan associated with this report."
+        },
+        "reportType": {
+          "type": "string",
+          "description": "The type of report (e.g., PDF, CSV)."
+        },
+        "generatedTime": {
+          "type": "string",
+          "description": "The date and time when the report was generated.",
+          "format": "date-time"
+        },
+        "content": {
+          "type": "string",
+          "description": "The content of the report (e.g., base64 encoded PDF or CSV data)."
+        },
+        "aiSummary": {
+          "type": "string",
+          "description": "AI-generated summary of the scan results."
+        }
+      },
+      "required": [
+        "id",
+        "scanId",
+        "reportType",
+        "generatedTime",
+        "content"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user data. Path-based ownership ensures only the user can access their own document.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/scans/{scanId}",
+        "definition": {
+          "entityName": "Scan",
+          "schema": {
+            "$ref": "#/backend/entities/Scan"
+          },
+          "description": "Stores scan data. Includes denormalized 'userId' for authorization independence, ensuring only the user can access their own scans.  The scans are secured via path-based rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "scanId",
+              "description": "The unique identifier of the scan."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/scans/{scanId}/reports/{reportId}",
+        "definition": {
+          "entityName": "Report",
+          "schema": {
+            "$ref": "#/backend/entities/Report"
+          },
+          "description": "Stores report data. This nested path ensures that reports are directly associated with their parent scans and user. Reports are secured via path-based rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "scanId",
+              "description": "The unique identifier of the scan."
+            },
+            {
+              "name": "reportId",
+              "description": "The unique identifier of the report."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to securely manage user data, scans, and reports for the VigilanteAI application. It prioritizes authorization independence by denormalizing the `userId` into the `scans` collection, enabling secure list operations and avoiding the need for `get()` calls in security rules. This approach ensures atomic operations and simplifies debugging. User roles are not managed but rather are implicitly granted through database access, thus no custom claims are required.\n\n*   **Users:** User data is stored under the `/users/{userId}` path, ensuring only the user can access their own data.\n*   **Scans:** Scans are stored in a subcollection `/users/{userId}/scans/{scanId}`. The `userId` is denormalized within the `scans` documents themselves to enable secure list operations and ensure that only the owning user can access the scans.  This segregation ensures each document shares the same security posture.\n*   **Reports:** Reports are stored in a subcollection `/users/{userId}/scans/{scanId}/reports/{reportId}`. This hierarchical path ensures clear ownership and simplifies security rules. The report includes the `scanId` to reference the parent scan."
+  }
+}
