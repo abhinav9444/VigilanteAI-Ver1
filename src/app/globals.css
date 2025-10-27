@@ -5,29 +5,29 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 216 58% 4%; /* #04080f */
+    --foreground: 215 72% 12%; /* #0e1c36 */
     --card: 0 0% 100%;
-    --card-foreground: 216 58% 4%;
+    --card-foreground: 215 72% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 216 58% 4%;
-    --primary: 213 44% 52%; /* #507dbc */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 200 24% 91%; /* #dae3e5 */
-    --secondary-foreground: 216 58% 4%;
-    --muted: 200 24% 91%;
-    --muted-foreground: 210 5% 45%;
-    --accent: 209 63% 83%; /* #a1c6ea */
-    --accent-foreground: 216 58% 4%;
+    --popover-foreground: 215 72% 12%;
+    --primary: 218 100% 84%; /* #afcbff */
+    --primary-foreground: 215 72% 12%;
+    --secondary: 190 100% 92%; /* #d7f9ff */
+    --secondary-foreground: 215 72% 12%;
+    --muted: 190 100% 92%;
+    --muted-foreground: 215 15% 45%;
+    --accent: 218 100% 90%; /* Lighter Jordy Blue for accent */
+    --accent-foreground: 215 72% 12%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 209 56% 82%; /* #bbd1ea */
-    --input: 209 56% 82%;
-    --ring: 213 44% 52%;
-    --chart-1: 213 44% 52%;
-    --chart-2: 209 63% 70%;
-    --chart-3: 209 56% 82%;
-    --chart-4: 216 58% 15%;
-    --chart-5: 216 58% 25%;
+    --border: 218 100% 92%; /* Lighter Jordy Blue for border */
+    --input: 218 100% 92%;
+    --ring: 218 100% 84%;
+    --chart-1: 218 100% 84%;
+    --chart-2: 190 100% 80%;
+    --chart-3: 27 100% 94%;
+    --chart-4: 215 72% 25%;
+    --chart-5: 215 72% 35%;
     --radius: 0.5rem;
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222.2 84% 4.9%;
@@ -39,30 +39,30 @@
     --sidebar-ring: 271 76% 53%;
   }
   .dark {
-    --background: 216 58% 4%; /* #04080f */
-    --foreground: 200 24% 91%; /* #dae3e5 */
-    --card: 214 48% 9%; /* Slightly lighter than background */
-    --card-foreground: 200 24% 91%;
-    --popover: 216 58% 4%;
-    --popover-foreground: 200 24% 91%;
-    --primary: 213 44% 52%; /* #507dbc */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 216 58% 12%; /* Darker blue */
-    --secondary-foreground: 200 24% 91%;
-    --muted: 216 58% 12%;
-    --muted-foreground: 209 56% 70%;
-    --accent: 213 44% 52%;
-    --accent-foreground: 0 0% 100%;
+    --background: 215 72% 12%; /* #0e1c36 */
+    --foreground: 80 50% 98%; /* #f9fbf2 */
+    --card: 215 60% 16%; /* Slightly lighter than background */
+    --card-foreground: 80 50% 98%;
+    --popover: 215 72% 12%;
+    --popover-foreground: 80 50% 98%;
+    --primary: 218 100% 84%; /* #afcbff */
+    --primary-foreground: 215 72% 12%;
+    --secondary: 215 72% 20%; /* Darker blue */
+    --secondary-foreground: 80 50% 98%;
+    --muted: 215 72% 20%;
+    --muted-foreground: 218 100% 84%;
+    --accent: 218 100% 84%;
+    --accent-foreground: 215 72% 12%;
     --destructive: 0 63% 51%; /* #dc2626 */
     --destructive-foreground: 0 0% 100%;
-    --border: 213 44% 32%; /* Darker version of primary */
-    --input: 213 44% 22%;
-    --ring: 213 44% 52%;
-    --chart-1: 213 44% 52%;
-    --chart-2: 209 63% 60%;
-    --chart-3: 209 56% 70%;
-    --chart-4: 216 58% 15%;
-    --chart-5: 216 58% 25%;
+    --border: 215 60% 25%; /* Darker version of primary */
+    --input: 215 60% 20%;
+    --ring: 218 100% 84%;
+    --chart-1: 218 100% 84%;
+    --chart-2: 190 100% 80%;
+    --chart-3: 27 100% 94%;
+    --chart-4: 215 72% 25%;
+    --chart-5: 215 72% 35%;
     --sidebar-background: 270 100% 10%;
     --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 271 76% 53%;
