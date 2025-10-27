@@ -199,7 +199,7 @@ export default function AboutPage() {
                 personally own or for which you have explicit, written consent
                 from the owner.
               </li>
-              <li>
+              <li className="font-semibold text-foreground">
                 You understand that unauthorized vulnerability scanning,
                 penetration testing, or exploitation of third-party systems may
                 violate laws such as the Indian IT Act 2000, the Computer Misuse
