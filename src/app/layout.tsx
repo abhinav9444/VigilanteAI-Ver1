@@ -33,7 +33,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={cn("font-body antialiased", "dark:bg-grid-slate-900/[0.94]")}>
+      <body className={cn("font-body antialiased", "dark:bg-grid-slate-900")}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
