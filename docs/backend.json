@@ -34,6 +34,10 @@
         "googleId": {
           "type": "string",
           "description": "Google ID of the user, used for Google Login."
+        },
+        "reportHeader": {
+          "type": "string",
+          "description": "A professional title or header for reports, e.g., 'Cyber Security Researcher'."
         }
       },
       "required": [

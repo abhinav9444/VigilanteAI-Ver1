@@ -3,7 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useAuth, useFirestore, useUser } from '@/firebase';
 import { updateProfile, updateEmail } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Card,
@@ -29,14 +29,30 @@ export default function ProfilePage() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [reportHeader, setReportHeader] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isFetchingData, setIsFetchingData] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      setName(user.displayName || '');
-      setEmail(user.email || '');
+    async function fetchUserData() {
+      if (user) {
+        setName(user.displayName || '');
+        setEmail(user.email || '');
+
+        const userRef = doc(firestore, 'users', user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          setReportHeader(userData.reportHeader || '');
+        }
+        setIsFetchingData(false);
+      } else if (!isUserLoading) {
+        setIsFetchingData(false);
+      }
     }
-  }, [user]);
+    fetchUserData();
+  }, [user, isUserLoading, firestore]);
+
 
   const handleSave = async (e: FormEvent) => {
     e.preventDefault();
@@ -46,7 +62,9 @@ export default function ProfilePage() {
     try {
       // Update Firebase Auth profile
       if (auth.currentUser) {
-        await updateProfile(auth.currentUser, { displayName: name });
+        if (name !== user.displayName) {
+          await updateProfile(auth.currentUser, { displayName: name });
+        }
         if (email !== user.email) {
           await updateEmail(auth.currentUser, email);
         }
@@ -62,6 +80,7 @@ export default function ProfilePage() {
           lastName: nameParts.slice(1).join(' ') || '',
           email: email,
           username: email,
+          reportHeader: reportHeader,
         },
         { merge: true }
       );
@@ -83,7 +102,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (isUserLoading) {
+  if (isUserLoading || isFetchingData) {
     return (
       <div className="space-y-6">
         <div>
@@ -119,6 +138,10 @@ export default function ProfilePage() {
                 <Skeleton className="h-10 w-full" />
               </div>
             </div>
+            <div className="grid gap-2">
+                <Label htmlFor="reportHeader">Report Header</Label>
+                <Skeleton className="h-10 w-full" />
+              </div>
           </CardContent>
           <CardFooter>
              <Skeleton className="h-10 w-24" />
@@ -195,6 +218,19 @@ export default function ProfilePage() {
                   disabled={isSaving}
                 />
               </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="reportHeader">Report Header</Label>
+              <Input
+                id="reportHeader"
+                placeholder="e.g., Cyber Security Researcher"
+                value={reportHeader}
+                onChange={(e) => setReportHeader(e.target.value)}
+                disabled={isSaving}
+              />
+              <p className="text-sm text-muted-foreground">
+                This will be displayed under your name on generated reports.
+              </p>
             </div>
           </CardContent>
           <CardFooter>
