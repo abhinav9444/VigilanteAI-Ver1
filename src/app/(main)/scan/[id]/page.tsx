@@ -1,3 +1,4 @@
+
 'use client';
 
 import { notFound } from 'next/navigation';
@@ -22,6 +23,7 @@ import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { Scan } from '@/lib/definitions';
 import ScanLoading from './loading';
+import { cn } from '@/lib/utils';
 
 export default function ScanPage({ params }: { params: { id: string } }) {
   const { user } = useUser();
@@ -67,14 +69,22 @@ export default function ScanPage({ params }: { params: { id: string } }) {
 
   const totalVulnerabilities = vulnerabilities.length;
 
+  const severityStyles: { [key: string]: string } = {
+    Critical: 'hover:border-red-500/50 hover:bg-red-500/5',
+    High: 'hover:border-orange-500/50 hover:bg-orange-500/5',
+    Medium: 'hover:border-yellow-500/50 hover:bg-yellow-500/5',
+    Low: 'hover:border-blue-500/50 hover:bg-blue-500/5',
+  };
+
+
   return (
     <div id="report-content" className="space-y-6">
       <ReportHeader scan={scan} />
       
       <Separator />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <Card className="transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-primary/50 hover:bg-primary/5">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Issues</CardTitle>
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
@@ -84,7 +94,7 @@ export default function ScanPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
         {Object.entries(severityCounts).map(([severity, count]) => (
-           <Card key={severity} className="transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
+           <Card key={severity} className={cn("transition-all duration-200 hover:shadow-lg hover:-translate-y-1", severityStyles[severity])}>
            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
              <CardTitle className="text-sm font-medium">{severity}</CardTitle>
            </CardHeader>
