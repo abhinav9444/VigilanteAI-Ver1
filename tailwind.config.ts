@@ -16,6 +16,12 @@ export default {
       },
     },
     extend: {
+      backgroundImage: {
+        'grid-slate-900': `
+          linear-gradient(90deg, rgba(22,26,29,0) 0%, hsl(var(--card)) 50%, rgba(22,26,29,0) 100%),
+          linear-gradient(0deg, hsl(var(--background)) 0%, transparent 100%)
+        `,
+      },
       fontFamily: {
         body: ['Inter', 'sans-serif'],
         headline: ['Inter', 'sans-serif'],

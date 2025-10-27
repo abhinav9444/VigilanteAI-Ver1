@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase';
 import { ThemeProvider } from '@/components/theme-provider';
+import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'VigilanteAI',
@@ -32,7 +33,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-body antialiased">
+      <body className={cn("font-body antialiased", "dark:bg-grid-slate-900/[0.94]")}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
