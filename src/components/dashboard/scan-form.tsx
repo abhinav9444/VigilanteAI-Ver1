@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
 import { startScan, ScanState } from '@/lib/actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Rocket, Loader2, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useActionState } from 'react';
 
 const initialState: ScanState = {
   scanId: null,
@@ -48,7 +48,7 @@ const SCAN_LOGS = [
 ];
 
 export function ScanForm() {
-  const [state, formAction] = useFormState(startScan, initialState);
+  const [state, formAction] = useActionState(startScan, initialState);
   const { pending } = useFormStatus();
   const [progress, setProgress] = useState(0);
   const [logs, setLogs] = useState<string[]>([]);
