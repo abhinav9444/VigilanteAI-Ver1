@@ -32,8 +32,11 @@ export async function startScan(
     return { ...prevState, error: 'URL is required' };
   }
 
+  let scanId: string;
+
   try {
     const newScan = await createScan(url);
+    scanId = newScan.id;
     
     // This is a simplified simulation. In a real app, you'd use a background job queue.
     await updateScanStatus(newScan.id, 'Scanning');
@@ -56,6 +59,5 @@ export async function startScan(
   // This is not ideal for server actions, but for simulation it works.
   // In a real app, the client would poll for status and redirect.
   // We are redirecting from the server action upon completion of the long-running task.
-  const latestScan = await createScan(url); // We re-create it just to get the ID back to the client for the redirect. It's a hack for this simulation.
-  redirect(`/scan/${latestScan.id}`);
+  redirect(`/scan/${scanId}`);
 }
