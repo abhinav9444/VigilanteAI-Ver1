@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import {
@@ -37,6 +35,30 @@ export default function AboutPage() {
           <p>
             VigilanteAI is an AI-powered web vulnerability scanner developed to proactively identify, analyze, and report potential security threats across web applications. This project combines advanced artificial intelligence with traditional cybersecurity principles to assist researchers, law enforcement agencies, and cybersecurity professionals in early threat detection and system hardening.
           </p>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Project Overview</CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-muted-foreground grid gap-2">
+            <div className="flex justify-between">
+                <span className="font-semibold">Project Name:</span>
+                <span>VigilanteAI</span>
+            </div>
+            <div className="flex justify-between">
+                <span className="font-semibold">Course:</span>
+                <span>B.Tech – 7th Semester, Computer Science and Engineering</span>
+            </div>
+            <div className="flex justify-between">
+                <span className="font-semibold">Project Type:</span>
+                <span>Major Project / Project - 1</span>
+            </div>
+            <div className="flex justify-between">
+                <span className="font-semibold">Institution:</span>
+                <span>Kalinga Institute of Industrial Technology</span>
+            </div>
         </CardContent>
       </Card>
 
