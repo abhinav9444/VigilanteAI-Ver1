@@ -58,8 +58,8 @@ export function ScanSummary({ scan }: ScanSummaryProps) {
       if (scan.vulnerabilities.length > 0) {
         setIsLoading(true);
         try {
-          const rawScanOutput = JSON.stringify(scan.vulnerabilities);
-          const result = await summarizeScanResults({ rawScanOutput });
+          const scanOutput = JSON.stringify(scan.vulnerabilities);
+          const result = await summarizeScanResults({ scanOutput });
           setSummary(result.summary);
         } catch (error) {
           console.error('Failed to get AI summary:', error);
