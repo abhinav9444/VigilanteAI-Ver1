@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -64,23 +65,37 @@ export default function AboutPage() {
                     .join('')}
                 </AvatarFallback>
               </Avatar>
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <h3 className="text-xl font-semibold">{projectGuide.name}</h3>
                 <p className="text-muted-foreground">
                   {projectGuide.designation}
                 </p>
-                {projectGuide.website && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a
-                      href={projectGuide.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <LinkIcon className="mr-2 h-4 w-4" />
-                      Website
-                    </a>
-                  </Button>
-                )}
+                <div className="flex gap-2">
+                   {projectGuide.website && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a
+                        href={projectGuide.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <LinkIcon className="mr-2 h-4 w-4" />
+                        Website
+                      </a>
+                    </Button>
+                  )}
+                  {projectGuide.linkedin && (
+                     <Button variant="outline" size="sm" asChild>
+                      <a
+                        href={projectGuide.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Linkedin className="mr-2 h-4 w-4" />
+                        LinkedIn
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
