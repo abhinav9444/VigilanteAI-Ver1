@@ -49,20 +49,20 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+    <div className="grid gap-4 lg:grid-cols-7">
       <div className="lg:col-span-4">
         <ScanForm />
       </div>
       <Card className="lg:col-span-3">
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
             <div>
               <CardTitle>Recent Scans</CardTitle>
               <CardDescription>
                 A summary of your most recent scans.
               </CardDescription>
             </div>
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
               <Link href="/history">View All</Link>
             </Button>
           </div>
@@ -79,18 +79,18 @@ export default function DashboardPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>URL</TableHead>
-                  <TableHead className="text-center">Status</TableHead>
-                  <TableHead className="text-right">Date</TableHead>
+                  <TableHead className="hidden sm:table-cell text-center">Status</TableHead>
+                  <TableHead className="hidden md:table-cell text-right">Date</TableHead>
                   <TableHead className="text-right"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {recentScans.map((scan) => (
                   <TableRow key={scan.id}>
-                    <TableCell className="font-medium truncate max-w-48">
+                    <TableCell className="font-medium truncate max-w-32 sm:max-w-48">
                       {scan.url}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="hidden sm:table-cell text-center">
                       <Badge
                         variant={
                           scan.status === 'Completed'
@@ -108,7 +108,7 @@ export default function DashboardPage() {
                         {scan.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="hidden md:table-cell text-right">
                       {formatDate(scan.createdAt)}
                     </TableCell>
                     <TableCell>

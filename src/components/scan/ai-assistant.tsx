@@ -111,7 +111,7 @@ export function AiAssistant({ scanDetails }: { scanDetails: string }) {
                   }`}
                 >
                   {message.role === 'assistant' ? (
-                     <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: marked(message.content) as string }} />
+                     <div className="prose prose-sm dark:prose-invert max-w-none prose-pre:whitespace-pre-wrap prose-pre:break-all" dangerouslySetInnerHTML={{ __html: marked(message.content) as string }} />
                   ) : (
                     <p className="whitespace-pre-wrap">{message.content}</p>
                   )}

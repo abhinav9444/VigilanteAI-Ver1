@@ -83,8 +83,8 @@ export default function ScanPage({ params }: { params: { id: string } }) {
       
       <Separator />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        <Card className="transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-primary/50 hover:bg-primary/5">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+        <Card className="col-span-2 md:col-span-1 transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-primary/50 hover:bg-primary/5">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Issues</CardTitle>
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
@@ -106,7 +106,7 @@ export default function ScanPage({ params }: { params: { id: string } }) {
       </div>
 
       <Tabs defaultValue="summary" className="space-y-4">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="summary">Summary</TabsTrigger>
           <TabsTrigger value="details">Vulnerability Details</TabsTrigger>
           <TabsTrigger value="assistant">AI Assistant</TabsTrigger>
