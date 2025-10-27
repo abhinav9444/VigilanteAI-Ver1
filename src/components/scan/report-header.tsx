@@ -7,15 +7,45 @@ import { Button } from '@/components/ui/button';
 import { Download, Loader2 } from 'lucide-react';
 import { Scan } from '@/lib/definitions';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import 'jspdf-autotable';
 import Papa from 'papaparse';
 import { Skeleton } from '../ui/skeleton';
 import { VigilanteAiLogo } from '../logo';
+import { summarizeScanResults } from '@/ai/flows/summarize-scan-results';
+
+// Extend jsPDF with autoTable
+declare module 'jspdf' {
+    interface jsPDF {
+        autoTable: (options: any) => jsPDF;
+    }
+}
 
 type UserProfile = {
   name?: string;
   reportHeader?: string;
 };
+
+// Helper function for adding footers to PDF
+const addFooters = (pdf: jsPDF) => {
+    const pageCount = pdf.getNumberOfPages();
+    pdf.setFont('helvetica', 'italic');
+    pdf.setFontSize(8);
+    for (let i = 1; i <= pageCount; i++) {
+        pdf.setPage(i);
+        pdf.text(
+            `© ${new Date().getFullYear()} VigilanteAI. All rights reserved.`,
+            pdf.internal.pageSize.width / 2,
+            pdf.internal.pageSize.height - 10,
+            { align: 'center' }
+        );
+        pdf.text(
+            `Page ${i} of ${pageCount}`,
+            pdf.internal.pageSize.width - 20,
+            pdf.internal.pageSize.height - 10
+        );
+    }
+};
+
 
 export function ReportHeader({ scan }: { scan: Scan }) {
   const { user } = useUser();
@@ -44,42 +74,118 @@ export function ReportHeader({ scan }: { scan: Scan }) {
 
   const handleExportPdf = async () => {
     setIsLoading(true);
-    const reportElement = document.getElementById('report-content');
-    if (!reportElement) {
-        setIsLoading(false);
-        return;
-    };
+    if (!profile) return;
 
-    const canvas = await html2canvas(reportElement, {
-        scale: 2, // Higher scale for better quality
-        useCORS: true,
-        backgroundColor: null,
-    });
-    
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-    const ratio = imgWidth / imgHeight;
-    const height = pdfWidth / ratio;
-    
-    let position = 0;
-    let pageHeight = pdf.internal.pageSize.height;
-    let remainingHeight = imgHeight * pdfWidth / imgWidth;
+    try {
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const margin = 20;
 
-    while (remainingHeight > 0) {
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, height);
-        remainingHeight -= pageHeight;
-        if (remainingHeight > 0) {
-            pdf.addPage();
-            position = -pdfHeight;
+        // --- Title Page ---
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(24);
+        pdf.text('VigilanteAI', pageWidth / 2, 40, { align: 'center' });
+
+        pdf.setFontSize(16);
+        pdf.text('Vulnerability Scan Report', pageWidth / 2, 50, { align: 'center' });
+
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`Target URL: ${scan.url}`, pageWidth / 2, 70, { align: 'center' });
+        pdf.text(`Date: ${new Date(scan.completedAt!).toLocaleString()}`, pageWidth / 2, 80, { align: 'center' });
+        
+        pdf.setLineWidth(0.5);
+        pdf.line(margin, 100, pageWidth - margin, 100);
+
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Report Prepared For:', pageWidth / 2, 120, { align: 'center' });
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(profile.name || 'N/A', pageWidth / 2, 130, { align: 'center' });
+        if(profile.reportHeader) {
+            pdf.setFontSize(10);
+            pdf.setTextColor(100);
+            pdf.text(profile.reportHeader, pageWidth / 2, 135, { align: 'center' });
         }
-    }
 
-    pdf.save(`VigilanteAI-Report-${scan.url.replace(/https?:\/\//, '')}.pdf`);
-    setIsLoading(false);
+        // --- Summary Page ---
+        pdf.addPage();
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(18);
+        pdf.text('1. Executive Summary', margin, 30);
+        
+        // Fetch AI summary
+        const summaryResult = await summarizeScanResults({ scanOutput: JSON.stringify(scan.vulnerabilities) });
+        const summaryText = summaryResult.summary;
+
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(12);
+        const splitSummary = pdf.splitTextToSize(summaryText, pageWidth - margin * 2);
+        pdf.text(splitSummary, margin, 45);
+
+        // --- Vulnerabilities Section ---
+        pdf.addPage();
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(18);
+        pdf.text('2. Vulnerability Details', margin, 30);
+
+        const tableColumn = ["Severity", "Vulnerability", "CWE"];
+        const tableRows: (string[])[] = [];
+
+        scan.vulnerabilities.forEach(vuln => {
+            const vulnData = [
+                vuln.severity,
+                vuln.name,
+                vuln.cwe,
+            ];
+            tableRows.push(vulnData);
+        });
+
+        pdf.autoTable({
+            startY: 40,
+            head: [tableColumn],
+            body: tableRows,
+            theme: 'striped',
+            headStyles: { fillColor: [30, 144, 255] } // Saturated blue
+        });
+
+        // --- Detailed Vulnerability Pages ---
+        scan.vulnerabilities.forEach((vuln, index) => {
+            pdf.addPage();
+            pdf.setFontSize(16);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text(`${index + 1}. ${vuln.name}`, margin, 30);
+
+            pdf.setFontSize(12);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('Severity:', margin, 45);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text(vuln.severity, margin + 25, 45);
+
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('Description:', margin, 55);
+            pdf.setFont('helvetica', 'normal');
+            const splitDescription = pdf.splitTextToSize(vuln.description, pageWidth - margin * 2);
+            pdf.text(splitDescription, margin, 62);
+            
+            let currentY = 62 + (splitDescription.length * 5); // Estimate new Y
+
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('Remediation:', margin, currentY + 10);
+            pdf.setFont('helvetica', 'normal');
+            const splitRemediation = pdf.splitTextToSize(vuln.remediation, pageWidth - margin * 2);
+            pdf.text(splitRemediation, margin, currentY + 17);
+        });
+
+
+        // Add footers to all pages
+        addFooters(pdf);
+
+        pdf.save(`VigilanteAI-Report-${scan.url.replace(/https?:\/\//, '')}.pdf`);
+    } catch (error) {
+        console.error("Failed to generate PDF", error);
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   const handleExportCsv = () => {
