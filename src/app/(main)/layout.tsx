@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Menu,
   Settings,
+  Info
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -23,6 +24,7 @@ const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/history', icon: FileClock, label: 'Scan History' },
   { href: '/settings', icon: Settings, label: 'Settings' },
+  { href: '/about', icon: Info, label: 'About Us' },
 ];
 
 export default function MainLayout({
