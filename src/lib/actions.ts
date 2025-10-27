@@ -35,20 +35,26 @@ export async function startScan(
   let scanId: string;
 
   try {
+    // 1. Create the scan and get its ID
     const newScan = await createScan(url);
     scanId = newScan.id;
     
-    // This is a simplified simulation. In a real app, you'd use a background job queue.
+    // 2. This is a simplified simulation. In a real app, you'd use a background job queue.
     await updateScanStatus(newScan.id, 'Scanning');
+    
+    // 3. Revalidate paths so the UI can show the "Scanning" status
     revalidatePath('/dashboard');
     revalidatePath('/history');
 
-    // Simulate the scan steps
+    // 4. Simulate the scan steps
     for (const step of SCAN_STEPS) {
         await new Promise(resolve => setTimeout(resolve, step.delay));
     }
     
+    // 5. Mark the scan as complete
     await updateScanStatus(newScan.id, 'Completed');
+    
+    // 6. Revalidate the history page again with the final status
     revalidatePath('/history');
     
   } catch (error) {
@@ -56,8 +62,7 @@ export async function startScan(
     return { ...prevState, status: 'error', error: 'Failed to start scan.' };
   }
   
-  // This is not ideal for server actions, but for simulation it works.
-  // In a real app, the client would poll for status and redirect.
-  // We are redirecting from the server action upon completion of the long-running task.
+  // 7. Redirect to the completed scan's page.
+  // This happens after all the steps above are finished.
   redirect(`/scan/${scanId}`);
 }
