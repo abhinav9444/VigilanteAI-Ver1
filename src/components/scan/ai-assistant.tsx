@@ -104,10 +104,10 @@ export function AiAssistant({ scanDetails }: { scanDetails: string }) {
                   </Avatar>
                 )}
                 <div
-                  className={`max-w-xs rounded-lg p-3 text-sm lg:max-w-2xl ${
+                  className={`rounded-lg p-3 text-sm ${
                     message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
+                      ? 'bg-primary text-primary-foreground max-w-xs lg:max-w-2xl'
+                      : 'bg-muted w-full'
                   }`}
                 >
                   {message.role === 'assistant' ? (
@@ -131,7 +131,7 @@ export function AiAssistant({ scanDetails }: { scanDetails: string }) {
                     <VigilanteAiLogo className="h-5 w-5" />
                   </div>
                 </Avatar>
-                <div className="max-w-xs rounded-lg p-3 text-sm bg-muted flex items-center">
+                <div className="rounded-lg p-3 text-sm bg-muted flex items-center">
                   <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 </div>
               </div>
