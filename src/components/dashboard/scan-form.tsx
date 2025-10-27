@@ -1,39 +1,14 @@
 'use client';
 
-import { useFormStatus } from 'react-dom';
-import { startScan, ScanState } from '@/lib/actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Rocket, Loader2, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { useEffect, useState, useRef, useActionState } from 'react';
-
-const initialState: ScanState = {
-  scanId: null,
-  url: null,
-  status: 'idle',
-};
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" className="w-full sm:w-auto" disabled={pending}>
-      {pending ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Scanning...
-        </>
-      ) : (
-        <>
-          <Rocket className="mr-2 h-4 w-4" />
-          Start Scan
-        </>
-      )}
-    </Button>
-  );
-}
+import { useEffect, useState, useRef, FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { createScan, updateScanStatus } from '@/lib/mock-data';
 
 const SCAN_LOGS = [
   'Target confirmed. Initializing scanners...',
@@ -48,14 +23,15 @@ const SCAN_LOGS = [
 ];
 
 export function ScanForm() {
-  const [state, formAction] = useActionState(startScan, initialState);
-  const { pending } = useFormStatus();
+  const router = useRouter();
+  const [isScanning, setIsScanning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [logs, setLogs] = useState<string[]>([]);
-  const formRef = useRef<HTMLFormElement>(null);
-  
+  const [error, setError] = useState<string | null>(null);
+  const urlRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
-    if (pending) {
+    if (isScanning) {
       setProgress(0);
       setLogs([]);
       let currentProgress = 0;
@@ -78,7 +54,50 @@ export function ScanForm() {
         clearInterval(logInterval);
       };
     }
-  }, [pending]);
+  }, [isScanning]);
+  
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const url = urlRef.current?.value;
+
+    if (!url) {
+      setError('URL is required');
+      return;
+    }
+
+    setError(null);
+    setIsScanning(true);
+
+    try {
+        const newScan = await createScan(url);
+        await updateScanStatus(newScan.id, 'Scanning');
+
+        // Simulate scan steps
+        const SCAN_STEPS = [
+            { message: 'Target confirmed. Initializing scanners...', delay: 1000 },
+            { message: 'Checking for open ports (Nmap)...', delay: 2000 },
+            { message: 'Analyzing web server configuration...', delay: 1500 },
+            { message: 'Scanning for SQL injection vectors...', delay: 3000 },
+            { message: 'Probing for Cross-Site Scripting (XSS)...', delay: 2500 },
+            { message: 'Checking for insecure headers...', delay: 1000 },
+            { message: 'Analyzing robots.txt and sitemap.xml...', delay: 1000 },
+            { message: 'Compiling results...', delay: 1500 },
+        ];
+        
+        for (const step of SCAN_STEPS) {
+            await new Promise(resolve => setTimeout(resolve, step.delay));
+        }
+
+        await updateScanStatus(newScan.id, 'Completed');
+        
+        router.push(`/scan/${newScan.id}`);
+
+    } catch (err) {
+        setError('Failed to start scan.');
+        console.error(err);
+        setIsScanning(false);
+    }
+  }
 
 
   return (
@@ -90,29 +109,42 @@ export function ScanForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form ref={formRef} action={formAction} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="url">Website URL</Label>
             <div className="flex flex-col sm:flex-row gap-2">
             <Input
               id="url"
               name="url"
+              ref={urlRef}
               placeholder="https://example.com"
               required
-              disabled={pending}
+              disabled={isScanning}
               className="flex-grow"
             />
-            <SubmitButton />
+            <Button type="submit" className="w-full sm:w-auto" disabled={isScanning}>
+              {isScanning ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Scanning...
+                </>
+              ) : (
+                <>
+                  <Rocket className="mr-2 h-4 w-4" />
+                  Start Scan
+                </>
+              )}
+            </Button>
             </div>
           </div>
-          {state.error && (
+          {error && (
             <div className="flex items-center gap-2 text-sm text-destructive">
                 <AlertCircle className="h-4 w-4" />
-                <p>{state.error}</p>
+                <p>{error}</p>
             </div>
           )}
         </form>
-        {pending && (
+        {isScanning && (
             <div className="mt-6 space-y-4">
                 <div className="space-y-2">
                     <div className="flex justify-between text-sm font-medium">

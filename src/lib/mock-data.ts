@@ -59,7 +59,7 @@ const MOCK_VULNERABILITIES: Vulnerability[] = [
   },
 ];
 
-let MOCK_SCANS: Scan[] = [
+export let MOCK_SCANS: Scan[] = [
   {
     id: 'scan-1',
     url: 'https://example-vulnerable.com',
