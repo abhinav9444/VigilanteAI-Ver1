@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Table,
   TableBody,
@@ -13,18 +15,30 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { getAllScans } from '@/lib/mock-data';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowUpRight } from 'lucide-react';
-import {
-  File,
-} from 'lucide-react';
+import { File, Loader2 } from 'lucide-react';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
+import type { Scan } from '@/lib/definitions';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export default async function HistoryPage() {
-  const scans = await getAllScans();
+
+export default function HistoryPage() {
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const scansQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(
+        collection(firestore, 'users', user.uid, 'scans'),
+        orderBy('createdAt', 'desc')
+    );
+  }, [user, firestore]);
+
+  const { data: scans, isLoading } = useCollection<Scan>(scansQuery);
 
   return (
     <Card>
@@ -35,7 +49,13 @@ export default async function HistoryPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {scans.length > 0 ? (
+        {isLoading ? (
+            <div className="space-y-2">
+                {[...Array(5)].map((_, i) => (
+                    <Skeleton key={i} className="h-12 w-full" />
+                ))}
+            </div>
+        ) : scans && scans.length > 0 ? (
           <Table>
             <TableHeader>
               <TableRow>

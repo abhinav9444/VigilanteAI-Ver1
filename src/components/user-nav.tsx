@@ -70,12 +70,6 @@ export function UserNav() {
           <DropdownMenuItem asChild>
             <Link href="/profile">Profile</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem disabled>
-            Billing{' '}
-            <span className="ml-auto text-xs text-muted-foreground">
-              Coming soon
-            </span>
-          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/settings">Settings</Link>
           </DropdownMenuItem>

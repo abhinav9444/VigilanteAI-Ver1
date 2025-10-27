@@ -8,7 +8,6 @@ import {
   FileClock,
   LayoutDashboard,
   Menu,
-  MessageSquareQuote,
   Settings,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -23,7 +22,6 @@ import {
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/history', icon: FileClock, label: 'Scan History' },
-  { href: '/assistant', icon: MessageSquareQuote, label: 'AI Assistant' },
   { href: '/settings', icon: Settings, label: 'Settings' },
 ];
 
