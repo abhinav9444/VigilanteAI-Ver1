@@ -11,11 +11,13 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Linkedin, Link as LinkIcon, Heart } from 'lucide-react';
+import {
+  Linkedin,
+  Link as LinkIcon,
+  Heart,
+  AlertTriangle,
+} from 'lucide-react';
 import { teamMembers, projectGuide } from '@/lib/about-data';
-import { useUser } from '@/firebase';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function AboutPage() {
   return (
@@ -23,7 +25,9 @@ export default function AboutPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">About VigilanteAI</h1>
         <p className="text-muted-foreground mt-1">
-          This project, developed as part of the 7th-semester curriculum, is a collaborative academic effort focused on exploring AI-driven web vulnerability detection under faculty supervision.
+          This project, developed as part of the 7th-semester curriculum, is a
+          collaborative academic effort focused on exploring AI-driven web
+          vulnerability detection under faculty supervision.
         </p>
       </div>
 
@@ -33,32 +37,39 @@ export default function AboutPage() {
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
           <p>
-            VigilanteAI is an AI-powered web vulnerability scanner developed to proactively identify, analyze, and report potential security threats across web applications. This project combines advanced artificial intelligence with traditional cybersecurity principles to assist researchers, law enforcement agencies, and cybersecurity professionals in early threat detection and system hardening.
+            VigilanteAI is an AI-powered web vulnerability scanner developed to
+            proactively identify, analyze, and report potential security
+            threats across web applications. This project combines advanced
+            artificial intelligence with traditional cybersecurity principles
+            to assist researchers, law enforcement agencies, and cybersecurity
+            professionals in early threat detection and system hardening.
           </p>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Project Overview</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground grid gap-2">
-            <div className="flex justify-between">
-                <span className="font-semibold">Project Name:</span>
-                <span>VigilanteAI</span>
-            </div>
-            <div className="flex justify-between">
-                <span className="font-semibold">Course:</span>
-                <span>B.Tech – 7th Semester, Computer Science and Engineering</span>
-            </div>
-            <div className="flex justify-between">
-                <span className="font-semibold">Project Type:</span>
-                <span>Major Project / Project - 1</span>
-            </div>
-            <div className="flex justify-between">
-                <span className="font-semibold">Institution:</span>
-                <span>Kalinga Institute of Industrial Technology</span>
-            </div>
+          <div className="flex justify-between">
+            <span className="font-semibold">Project Name:</span>
+            <span>VigilanteAI</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-semibold">Course:</span>
+            <span>
+              B.Tech – 7th Semester, Computer Science and Engineering
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-semibold">Project Type:</span>
+            <span>Major Project / Project - 1</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-semibold">Institution:</span>
+            <span>Kalinga Institute of Industrial Technology</span>
+          </div>
         </CardContent>
       </Card>
 
@@ -87,7 +98,7 @@ export default function AboutPage() {
                   {projectGuide.designation}
                 </p>
                 <div className="flex gap-2">
-                   {projectGuide.website && (
+                  {projectGuide.website && (
                     <Button variant="outline" size="sm" asChild>
                       <a
                         href={projectGuide.website}
@@ -100,7 +111,7 @@ export default function AboutPage() {
                     </Button>
                   )}
                   {projectGuide.linkedin && (
-                     <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild>
                       <a
                         href={projectGuide.linkedin}
                         target="_blank"
@@ -154,6 +165,95 @@ export default function AboutPage() {
           ))}
         </div>
       </div>
+
+      <Separator />
+
+      <Card className="border-destructive/50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-destructive">
+            <AlertTriangle className="h-6 w-6" />
+            LEGAL DISCLAIMER & NOTICE
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6 text-sm">
+          <div>
+            <h3 className="font-semibold text-foreground mb-2">Disclaimer</h3>
+            <p className="text-muted-foreground">
+              VigilanteAI is a cybersecurity research and educational tool
+              designed to assist users in identifying potential vulnerabilities
+              on systems they own or have explicit authorization to test. It is
+              intended solely for lawful and ethical use in compliance with
+              applicable cybersecurity and data protection laws.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground mb-2">
+              Notice of Authorized Use
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              By using VigilanteAI, you acknowledge and agree that:
+            </p>
+            <ul className="list-disc space-y-2 pl-5 text-muted-foreground">
+              <li>
+                You will only scan systems, websites, or networks that you
+                personally own or for which you have explicit, written consent
+                from the owner.
+              </li>
+              <li>
+                You understand that unauthorized vulnerability scanning,
+                penetration testing, or exploitation of third-party systems may
+                violate laws such as the Indian IT Act 2000, the Computer Misuse
+                Act, or other regional cybersecurity regulations.
+              </li>
+              <li>
+                The developers, contributors, and maintainers of VigilanteAI
+                assume no liability for misuse, damages, or legal consequences
+                arising from unauthorized or unethical use of this software.
+              </li>
+            </ul>
+          </div>
+          <div>
+            <p className="text-muted-foreground mb-4">
+              This tool should be used for defensive and educational
+              cybersecurity purposes only, such as:
+            </p>
+            <ul className="list-disc space-y-2 pl-5 text-muted-foreground">
+              <li>Security auditing of authorized assets</li>
+              <li>Academic research and learning</li>
+              <li>Internal organization security assessments</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground mb-2">Warning</h3>
+            <p className="text-muted-foreground">
+              Engaging in unauthorized scanning or data probing activities on
+              systems without permission is illegal and may lead to civil or
+              criminal penalties. Always obtain proper authorization before
+              running any scan.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground mb-2">
+              Ethical Usage
+            </h3>
+            <p className="text-muted-foreground">
+              VigilanteAI supports responsible disclosure practices. If
+              vulnerabilities are discovered, users are encouraged to notify
+              affected parties responsibly and in good faith.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground mb-2">
+              Contact / Responsibility
+            </h3>
+            <p className="text-muted-foreground">
+              For ethical use, testing permissions, or collaboration, please
+              contact the project administrator or maintainers before initiating
+              any scans.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       <Separator />
 
