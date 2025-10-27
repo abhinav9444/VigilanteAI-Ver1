@@ -2,158 +2,101 @@
  * @file VigilanteAI Firestore Security Rules
  *
  * @core_philosophy This ruleset enforces a strict user-ownership model for all data.
- * All data (users, scans, and reports) is nested under the /users/{userId} path,
- * ensuring that only the authenticated user has access to their own data.
+ * Users can only create, read, update, and delete their own data.
  *
- * @data_structure
- * - /users/{userId}: Stores user profile information.
- * - /users/{userId}/scans/{scanId}: Stores website vulnerability scan details.
- * - /users/{userId}/scans/{scanId}/reports/{reportId}: Stores reports generated from scans.
+ * @data_structure All data is nested under /users/{userId}, with further subcollections for scans and reports.
+ * This hierarchical structure simplifies security rules and ensures data isolation between users.
  *
  * @key_security_decisions
- * - User listing is disallowed.
- * - Each subcollection is secured using path-based rules derived from the user ID.
- * - Data required for authorization is denormalized to avoid costly `get()` calls.
- *
- * @denormalization_for_authorization
- * - The `scans` documents include the `userId` of the user who initiated the scan. This enables secure `list` operations and avoids the need for additional reads.
+ *   - User listing is explicitly denied for privacy.
+ *   - All write operations are protected by authorization checks.
+ *   - Data validation is limited to ownership fields to enable rapid iteration.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Enforces user-ownership for user profiles. Only the authenticated user can read/write their own profile.
+     * @description Manages user profiles. Only the authenticated user can create their own profile, and only the user can read or update their profile.
      * @path /users/{userId}
-     * @allow (create) User with ID 'user123' creates their profile.
-     *   - request.auth.uid: 'user123'
-     *   - resource.data.id: 'user123'
-     * @allow (get) User with ID 'user123' reads their profile.
-     *   - request.auth.uid: 'user123'
-     * @allow (update) User with ID 'user123' updates their profile.
-     *   - request.auth.uid: 'user123'
-     * @allow (delete) User with ID 'user123' deletes their profile.
-     *   - request.auth.uid: 'user123'
-     * @deny User with ID 'user456' attempts to create/read/write user profile with ID 'user123'.
-     *   - request.auth.uid: 'user456'
-     *   - resource.data.id: 'user123'
-     * @principle Enforces strict user ownership and validates relational integrity (userId in path matches userId in document data).
+     * @allow (create) User 'na4xA27TTIX0QDdGdTXl8okLxEb2' can create their profile at /users/na4xA27TTIX0QDdGdTXl8okLxEb2.
+     * @allow (get, update, delete) User 'na4xA27TTIX0QDdGdTXl8okLxEb2' can get, update, or delete their profile at /users/na4xA27TTIX0QDdGdTXl8okLxEb2.
+     * @deny (create) User 'anotherUser' cannot create a profile at /users/na4xA27TTIX0QDdGdTXl8okLxEb2.
+     * @deny (get, update, delete) User 'anotherUser' cannot get, update, or delete the profile at /users/na4xA27TTIX0QDdGdTXl8okLxEb2.
+     * @principle Enforces document ownership for all operations on user profiles.
      */
     match /users/{userId} {
-      // Helper function to check if the user is signed in
+      // Verify identity
       function isSignedIn() {
         return request.auth != null;
       }
 
-      // Helper function to check if the authenticated user is the owner of the resource
+      // Check if the requested user id is the same as the authenticated user id
       function isOwner(userId) {
-        return isSignedIn() && request.auth.uid == userId;
+        return request.auth.uid == userId;
       }
 
-      // Helper function to check if the authenticated user is the existing owner of the resource
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if false;
 
-      allow get: if isOwner(userId);
-      allow list: if false; // User listing is not allowed
-
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id; // Enforce immutability of userId
-      allow delete: if isExistingOwner(userId);
+      //Self-Creation:  A user can create their own document.
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isOwner(userId);
+      allow delete: if isSignedIn() && isOwner(userId);
     }
 
     /**
-     * @description Enforces user-ownership for scans. Only the authenticated user can read/write their own scans.
+     * @description Manages scans for a specific user. Only the authenticated user can create, read, update, and delete their own scans.
      * @path /users/{userId}/scans/{scanId}
-     * @allow (create) User with ID 'user123' creates a scan.
-     *   - request.auth.uid: 'user123'
-     *   - resource.data.userId: 'user123'
-     * @allow (get) User with ID 'user123' reads a scan.
-     *   - request.auth.uid: 'user123'
-     *   - resource.data.userId: 'user123'
-     * @allow (list) User with ID 'user123' lists their own scans.
-     *   - request.auth.uid: 'user123'
-     * @allow (update) User with ID 'user123' updates a scan.
-     *   - request.auth.uid: 'user123'
-     *   - resource.data.userId: 'user123'
-     * @allow (delete) User with ID 'user123' deletes a scan.
-     *   - request.auth.uid: 'user123'
-     *   - resource.data.userId: 'user123'
-     * @deny User with ID 'user456' attempts to create/read/write/delete user 'user123' scan.
-     *   - request.auth.uid: 'user456'
-     *   - resource.data.userId: 'user123'
-     * @principle Enforces strict user ownership and validates relational integrity (userId in path matches userId in document data).
+     * @allow (create) User 'na4xA27TTIX0QDdGdTXl8okLxEb2' can create a scan at /users/na4xA27TTIX0QDdGdTXl8okLxEb2/scans/scan123.
+     * @allow (get, list, update, delete) User 'na4xA27TTIX0QDdGdTXl8okLxEb2' can get, list, update, or delete their scan at /users/na4xA27TTIX0QDdGdTXl8okLxEb2/scans/scan123.
+     * @deny (create) User 'anotherUser' cannot create a scan at /users/na4xA27TTIX0QDdGdTXl8okLxEb2/scans/scan123.
+     * @deny (get, list, update, delete) User 'anotherUser' cannot get, list, update, or delete the scan at /users/na4xA27TTIX0QDdGdTXl8okLxEb2/scans/scan123.
+     * @principle Enforces document ownership and prevents cross-user data access.
      */
     match /users/{userId}/scans/{scanId} {
-      // Helper function to check if the user is signed in
+      // Verify identity
       function isSignedIn() {
         return request.auth != null;
       }
 
-      // Helper function to check if the authenticated user is the owner of the resource
+      // Check if the requested user id is the same as the authenticated user id
       function isOwner(userId) {
-        return isSignedIn() && request.auth.uid == userId;
+        return request.auth.uid == userId;
       }
 
-      // Helper function to check if the authenticated user is the existing owner of the resource
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId; // Enforce immutability of userId
-      allow delete: if isExistingOwner(userId);
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isOwner(userId);
+      allow delete: if isSignedIn() && isOwner(userId);
     }
 
     /**
-     * @description Enforces user-ownership for reports. Only the authenticated user can read/write their own reports.
+     * @description Manages reports for a specific scan. Only the authenticated user who owns the scan can create, read, update, and delete reports.
      * @path /users/{userId}/scans/{scanId}/reports/{reportId}
-     * @allow (create) User with ID 'user123' creates a report.
-     *   - request.auth.uid: 'user123'
-     *   - resource.data.scanId (scan owned by user123)
-     * @allow (get) User with ID 'user123' reads a report.
-     *   - request.auth.uid: 'user123'
-     *   - resource.data.scanId (scan owned by user123)
-     * @allow (list) User with ID 'user123' lists their own reports.
-     *   - request.auth.uid: 'user123'
-     *   - resource.data.scanId (scan owned by user123)
-     * @allow (update) User with ID 'user123' updates a report.
-     *   - request.auth.uid: 'user123'
-     *   - resource.data.scanId (scan owned by user123)
-     * @allow (delete) User with ID 'user123' deletes a report.
-     *   - request.auth.uid: 'user123'
-     *   - resource.data.scanId (scan owned by user123)
-     * @deny User with ID 'user456' attempts to create/read/write/delete user 'user123' report.
-     *   - request.auth.uid: 'user456'
-     *   - resource.data.scanId (scan owned by user123)
-     * @principle Enforces strict user ownership and validates relational integrity (reports are linked to scans owned by the user).
+     * @allow (create) User 'na4xA27TTIX0QDdGdTXl8okLxEb2' can create a report at /users/na4xA27TTIX0QDdGdTXl8okLxEb2/scans/scan123/reports/report456.
+     * @allow (get, list, update, delete) User 'na4xA27TTIX0QDdGdTXl8okLxEb2' can get, list, update, or delete their report at /users/na4xA27TTIX0QDdGdTXl8okLxEb2/scans/scan123/reports/report456.
+     * @deny (create) User 'anotherUser' cannot create a report at /users/na4xA27TTIX0QDdGdTXl8okLxEb2/scans/scan123/reports/report456.
+     * @deny (get, list, update, delete) User 'anotherUser' cannot get, list, update, or delete the report at /users/na4xA27TTIX0QDdGdTXl8okLxEb2/scans/scan123/reports/report456.
+     * @principle Enforces document ownership and maintains hierarchical data integrity.
      */
     match /users/{userId}/scans/{scanId}/reports/{reportId} {
-      // Helper function to check if the user is signed in
+      // Verify identity
       function isSignedIn() {
         return request.auth != null;
       }
 
-      // Helper function to check if the authenticated user is the owner of the resource
+      // Check if the requested user id is the same as the authenticated user id
       function isOwner(userId) {
-        return isSignedIn() && request.auth.uid == userId;
+        return request.auth.uid == userId;
       }
 
-       // Helper function to check if the authenticated user is the existing owner of the resource
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-
-      allow create: if isOwner(userId); // No userId check necessary - path guarantees ownership via scan
-      allow update: if isExistingOwner(userId); // No userId check necessary - path guarantees ownership via scan
-      allow delete: if isExistingOwner(userId); // No userId check necessary - path guarantees ownership via scan
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isOwner(userId);
+      allow delete: if isSignedIn() && isOwner(userId);
     }
   }
 }
