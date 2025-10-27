@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -13,6 +14,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Linkedin, Link as LinkIcon, Heart } from 'lucide-react';
 import { teamMembers, projectGuide } from '@/lib/about-data';
+import { useUser } from '@/firebase';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function AboutPage() {
   return (
