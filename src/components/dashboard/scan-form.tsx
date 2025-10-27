@@ -10,6 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Rocket, Loader2, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useEffect, useState, useRef, FormEvent } from 'react';
@@ -37,6 +38,7 @@ export function ScanForm() {
   const [progress, setProgress] = useState(0);
   const [logs, setLogs] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [consentGiven, setConsentGiven] = useState(false);
   const urlRef = useRef<HTMLInputElement>(null);
   const { user } = useUser();
   const firestore = useFirestore();
@@ -77,6 +79,10 @@ export function ScanForm() {
     }
     if (!url) {
       setError('URL is required');
+      return;
+    }
+     if (!consentGiven) {
+      setError('You must agree to the terms before starting a scan.');
       return;
     }
 
@@ -145,7 +151,7 @@ export function ScanForm() {
               <Button
                 type="submit"
                 className="w-full sm:w-auto"
-                disabled={isScanning || !user}
+                disabled={isScanning || !user || !consentGiven}
               >
                 {isScanning ? (
                   <>
@@ -161,6 +167,15 @@ export function ScanForm() {
               </Button>
             </div>
           </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox id="terms" checked={consentGiven} onCheckedChange={(checked) => setConsentGiven(checked as boolean)} disabled={isScanning} />
+              <label
+                htmlFor="terms"
+                className="text-sm font-medium leading-none text-muted-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                I have authorization to scan this website and accept the terms of use.
+              </label>
+            </div>
           {error && (
             <div className="flex items-center gap-2 text-sm text-destructive">
               <AlertCircle className="h-4 w-4" />
