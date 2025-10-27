@@ -16,6 +16,7 @@ import { Loader2, Send } from 'lucide-react';
 import { useUser } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { VigilanteAiLogo } from '../logo';
+import { marked } from 'marked';
 
 type Message = {
   role: 'user' | 'assistant';
@@ -110,7 +111,7 @@ export function AiAssistant({ scanDetails }: { scanDetails: string }) {
                   }`}
                 >
                   {message.role === 'assistant' ? (
-                     <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: message.content.replace(/\n/g, '<br />') }} />
+                     <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: marked(message.content) as string }} />
                   ) : (
                     <p className="whitespace-pre-wrap">{message.content}</p>
                   )}
