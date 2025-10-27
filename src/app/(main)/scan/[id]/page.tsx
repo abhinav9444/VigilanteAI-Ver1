@@ -34,12 +34,12 @@ export default function ScanPage({ params }: { params: { id: string } }) {
 
   const { data: scan, isLoading, error } = useDoc<Scan>(scanRef);
 
-  if (isLoading) {
+  if (isLoading || !scan) {
     return <ScanLoading />;
   }
 
-  // After loading, if there's an error or no data, it's a 404
-  if (error || !scan) {
+  // After loading, if there's an error, it's a 404
+  if (error) {
     notFound();
   }
 
