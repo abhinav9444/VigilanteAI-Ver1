@@ -4,19 +4,32 @@
  */
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { ShodanDataSchema, virusTotalToolOutputSchema } from '@/lib/definitions';
+import dns from 'dns';
+import { promisify } from 'util';
 
-// Schema for VirusTotal Information (used as output for the tool)
-const virusTotalToolOutputSchema = z.object({
-  last_analysis_stats: z.object({
-    harmless: z.number(),
-    malicious: z.number(),
-    suspicious: z.number(),
-    undetected: z.number(),
-    timeout: z.number(),
-  }),
-  reputation: z.number(),
-  last_modification_date: z.number(),
-});
+
+const lookup = promisify(dns.lookup);
+
+export const getIpAddress = ai.defineTool(
+    {
+        name: 'getIpAddress',
+        description: 'Resolves a domain name to an IP address.',
+        inputSchema: z.object({ domain: z.string().describe('The domain name to resolve.') }),
+        outputSchema: z.string().describe('The resolved IP address.'),
+    },
+    async (input) => {
+        try {
+            const { address } = await lookup(input.domain);
+            return address;
+        } catch (error) {
+            console.error(`Failed to resolve IP for ${input.domain}:`, error);
+            // Return an empty string or handle the error as appropriate
+            return '';
+        }
+    }
+);
+
 
 export const getVirusTotalInfo = ai.defineTool(
   {
@@ -98,4 +111,41 @@ export const getWhoisInfo = ai.defineTool(
             throw error;
         }
     }
+);
+
+export const getShodanInfo = ai.defineTool(
+  {
+    name: 'getShodanInfo',
+    description: 'Retrieves host information from Shodan for a given IP address.',
+    inputSchema: z.object({
+      ip: z.string().describe('The IP address to query.'),
+    }),
+    outputSchema: ShodanDataSchema,
+  },
+  async (input) => {
+    const apiKey = process.env.SHODAN_API_KEY;
+    if (!apiKey) {
+      console.warn('Shodan API key is not configured.');
+      throw new Error('Shodan API key not configured.');
+    }
+    
+    const url = `https://api.shodan.io/shodan/host/${input.ip}?key=${apiKey}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        // Shodan API can return non-200 for known reasons e.g. "No information available for that IP."
+        if (response.status === 404) {
+            return { error: `No information available for IP: ${input.ip}` };
+        }
+        console.error(`Shodan API error: ${response.statusText}`);
+        throw new Error(`Failed to fetch from Shodan API: ${response.statusText}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error calling Shodan API:', error);
+      throw error;
+    }
+  }
 );

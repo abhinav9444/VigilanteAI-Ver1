@@ -45,7 +45,7 @@ export const OsintEnrichmentInputSchema = z.object({
 export type OsintEnrichmentInput = z.infer<typeof OsintEnrichmentInputSchema>;
 
 // Schema for VirusTotal Information
-const virusTotalInfoSchema = z.object({
+export const virusTotalToolOutputSchema = z.object({
   last_analysis_stats: z.object({
     harmless: z.number(),
     malicious: z.number(),
@@ -72,11 +72,25 @@ const whoisInfoSchema = z.object({
     nameServers: z.object({
         hostNames: z.array(z.string()).optional(),
     }).optional(),
+    error: z.string().optional(),
 }).optional();
+
+// Schema for Shodan Host Data
+export const ShodanDataSchema = z.object({
+  ip_str: z.string().optional(),
+  org: z.string().optional(),
+  os: z.string().nullable().optional(),
+  ports: z.array(z.number()).optional(),
+  hostnames: z.array(z.string()).optional(),
+  vulns: z.array(z.string()).optional(),
+  error: z.string().optional(),
+}).nullable();
+export type ShodanData = z.infer<typeof ShodanDataSchema>;
 
 
 export const OsintEnrichmentOutputSchema = z.object({
-    virusTotal: virusTotalInfoSchema.optional().describe('VirusTotal analysis results.'),
+    virusTotal: virusTotalToolOutputSchema.optional().describe('VirusTotal analysis results.'),
     whois: whoisInfoSchema.optional().describe('WHOIS information.'),
+    shodan: ShodanDataSchema.optional().describe('Shodan host lookup results.'),
 });
 export type OsintEnrichmentOutput = z.infer<typeof OsintEnrichmentOutputSchema>;

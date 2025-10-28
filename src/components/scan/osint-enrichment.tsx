@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -19,12 +18,15 @@ import {
   BookUser,
   Calendar,
   Contact,
-  Building
+  Building,
+  HardDrive,
+  Code
 } from 'lucide-react';
 import { enrichScanWithOsint } from '@/ai/flows/osint-enrichment';
 import { OsintEnrichmentOutput } from '@/lib/definitions';
 import { Skeleton } from '../ui/skeleton';
 import { Separator } from '../ui/separator';
+import { Badge } from '../ui/badge';
 
 function InfoRow({
   icon: Icon,
@@ -44,7 +46,7 @@ function InfoRow({
       </div>
       <div>
         <p className="font-medium">{label}</p>
-        {value && <p className="text-sm text-muted-foreground">{value}</p>}
+        {value && <p className="text-sm text-muted-foreground break-all">{value}</p>}
         {children && <div className="text-sm text-muted-foreground">{children}</div>}
       </div>
     </div>
@@ -53,29 +55,20 @@ function InfoRow({
 
 function OsintSkeleton() {
     return (
-        <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-                <CardHeader>
-                    <Skeleton className="h-6 w-1/2" />
-                    <Skeleton className="h-4 w-3/4" />
-                </CardHeader>
-                <CardContent className='space-y-4'>
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                     <Skeleton className="h-6 w-1/2" />
-                     <Skeleton className="h-4 w-3/4" />
-                </CardHeader>
-                <CardContent className='space-y-2'>
-                    <Skeleton className="h-20 w-full" />
-                     <Skeleton className="h-10 w-full" />
-                     <Skeleton className="h-10 w-full" />
-                </CardContent>
-            </Card>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[...Array(3)].map((_, i) => (
+                <Card key={i}>
+                    <CardHeader>
+                        <Skeleton className="h-6 w-1/2" />
+                        <Skeleton className="h-4 w-3/4" />
+                    </CardHeader>
+                    <CardContent className='space-y-4'>
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                    </CardContent>
+                </Card>
+            ))}
         </div>
     )
 }
@@ -123,22 +116,23 @@ export function OsintEnrichment({ url }: { url: string }) {
     : 'N/A';
 
   const whoisRecord = data?.whois;
+  const shodanRecord = data?.shodan;
 
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ShieldQuestion /> Threat Intelligence
           </CardTitle>
           <CardDescription>
-            Data aggregated from third-party security vendors.
+            Data aggregated from VirusTotal.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
             {vtStats ? (
                 <>
-                <InfoRow icon={maliciousCount > 0 ? AlertTriangle : CheckCircle} label='VirusTotal Reputation'>
+                <InfoRow icon={maliciousCount > 0 ? AlertTriangle : CheckCircle} label='Reputation Analysis'>
                     <div className='flex items-center gap-2'>
                     <span className={maliciousCount > 0 ? 'text-destructive' : 'text-green-500'}>
                         {maliciousCount} / {totalEngines} engines flagged this domain as malicious.
@@ -161,7 +155,7 @@ export function OsintEnrichment({ url }: { url: string }) {
             <CardDescription>Domain registration and contact details.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-            {whoisRecord ? (
+            {whoisRecord && !whoisRecord.error ? (
                 <>
                  <InfoRow icon={Server} label="Registrar" value={whoisRecord.registrarName || 'N/A'} />
                  <Separator />
@@ -173,6 +167,31 @@ export function OsintEnrichment({ url }: { url: string }) {
                 </>
             ): (
                  <p className='text-sm text-muted-foreground'>No WHOIS data available.</p>
+            )}
+        </CardContent>
+      </Card>
+       <Card>
+        <CardHeader>
+            <CardTitle className='flex items-center gap-2'><HardDrive /> Shodan Host Lookup</CardTitle>
+            <CardDescription>Internet-wide scanner data for the host IP.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            {shodanRecord && !shodanRecord.error ? (
+                <>
+                 <InfoRow icon={Globe} label="IP Address" value={shodanRecord.ip_str} />
+                 <Separator />
+                 <InfoRow icon={Building} label="Organization" value={shodanRecord.org} />
+                 <Separator />
+                 <InfoRow icon={Server} label="Operating System" value={shodanRecord.os} />
+                 <Separator />
+                 <InfoRow icon={Code} label="Open Ports">
+                    <div className="flex flex-wrap gap-2 mt-1">
+                        {shodanRecord.ports?.map((port) => <Badge key={port} variant="secondary">{port}</Badge>)}
+                    </div>
+                 </InfoRow>
+                </>
+            ): (
+                 <p className='text-sm text-muted-foreground'>{shodanRecord?.error || 'No Shodan data available.'}</p>
             )}
         </CardContent>
       </Card>
