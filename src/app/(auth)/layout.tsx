@@ -1,3 +1,4 @@
+
 'use client';
 
 import { VigilanteAiLogo } from '@/components/logo';
@@ -6,6 +7,7 @@ import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 const quotes = [
   {
