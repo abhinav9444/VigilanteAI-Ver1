@@ -93,13 +93,20 @@ export function ScanForm() {
     setIsScanning(true);
 
     try {
+      const scanTimestamp = serverTimestamp();
       // 1. Create a new scan document in Firestore
       const scansCollection = collection(firestore, 'users', user.uid, 'scans');
       const scanDocRef = await addDoc(scansCollection, {
         url: url,
         status: 'Scanning',
-        createdAt: serverTimestamp(),
+        createdAt: scanTimestamp,
         vulnerabilities: [],
+        chainOfCustody: {
+          userId: user.uid,
+          userIp: '127.0.0.1', // MOCKED: In a real app, get this from the request
+          userAgent: navigator.userAgent,
+          timestamp: scanTimestamp,
+        },
       });
 
       // 2. Simulate the scan process to find vulnerabilities

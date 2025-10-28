@@ -84,6 +84,9 @@
         "results": {
           "type": "string",
           "description": "JSON blob of scan results."
+        },
+        "chainOfCustody": {
+          "$ref": "#/backend/entities/ChainOfCustody"
         }
       },
       "required": [
@@ -133,6 +136,32 @@
         "generatedTime",
         "content"
       ]
+    },
+    "ChainOfCustody": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Chain of Custody",
+      "type": "object",
+      "description": "Logs traceability information for a scan, suitable for audits.",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who initiated the scan."
+        },
+        "userIp": {
+          "type": "string",
+          "description": "The IP address of the initiating user (handle with care for PII)."
+        },
+        "userAgent": {
+          "type": "string",
+          "description": "The user agent string of the initiating user's browser."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "The server timestamp when the scan was created.",
+          "format": "date-time"
+        }
+      },
+      "required": ["userId", "userIp", "userAgent", "timestamp"]
     }
   },
   "auth": {

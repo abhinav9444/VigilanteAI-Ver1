@@ -1,5 +1,12 @@
 import type { Timestamp } from 'firebase/firestore';
 
+export type ChainOfCustody = {
+  userId: string;
+  userIp: string; // Note: In a real app, handle this securely and respect privacy.
+  userAgent: string;
+  timestamp: Timestamp | string;
+};
+
 export type Vulnerability = {
   id: string;
   name: string;
@@ -20,6 +27,7 @@ export type Scan = {
   completedAt?: Timestamp | string;
   vulnerabilities: Vulnerability[];
   summary?: string;
+  chainOfCustody?: ChainOfCustody;
 };
 
 export type User = {

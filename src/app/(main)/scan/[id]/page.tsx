@@ -24,6 +24,7 @@ import { doc } from 'firebase/firestore';
 import type { Scan } from '@/lib/definitions';
 import ScanLoading from './loading';
 import { cn } from '@/lib/utils';
+import { ChainOfCustodyInfo } from '@/components/scan/chain-of-custody';
 
 export default function ScanPage({ params }: { params: { id: string } }) {
   const { user } = useUser();
@@ -113,6 +114,7 @@ export default function ScanPage({ params }: { params: { id: string } }) {
         </TabsList>
         <TabsContent value="summary" className="space-y-4">
           <ScanSummary scan={scan} />
+          {scan.chainOfCustody && <ChainOfCustodyInfo coc={scan.chainOfCustody} />}
         </TabsContent>
         <TabsContent value="details">
           <Card>
