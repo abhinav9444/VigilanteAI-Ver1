@@ -4,10 +4,9 @@
  */
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { URL } from 'url';
 
 // Schema for VirusTotal Information
-export const virusTotalInfoSchema = z.object({
+const virusTotalInfoSchema = z.object({
   last_analysis_stats: z.object({
     harmless: z.number(),
     malicious: z.number(),
@@ -16,7 +15,7 @@ export const virusTotalInfoSchema = z.object({
     timeout: z.number(),
   }),
   reputation: z.number(),
-  last_modification_date: z.number(), // Removed transform
+  last_modification_date: z.number(),
   whois: z.string().optional(),
 });
 

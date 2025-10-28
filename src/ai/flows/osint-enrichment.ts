@@ -9,12 +9,27 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { getVirusTotalInfo, virusTotalInfoSchema } from '../tools/osint-tools';
+import { getVirusTotalInfo } from '../tools/osint-tools';
 
 export const OsintEnrichmentInputSchema = z.object({
   url: z.string().describe('The URL to enrich with OSINT data.'),
 });
 export type OsintEnrichmentInput = z.infer<typeof OsintEnrichmentInputSchema>;
+
+// Schema for VirusTotal Information, moved here to avoid export issues.
+const virusTotalInfoSchema = z.object({
+  last_analysis_stats: z.object({
+    harmless: z.number(),
+    malicious: z.number(),
+    suspicious: z.number(),
+    undetected: z.number(),
+    timeout: z.number(),
+  }),
+  reputation: z.number(),
+  last_modification_date: z.number(),
+  whois: z.string().optional(),
+});
+
 
 export const OsintEnrichmentOutputSchema = z.object({
     virusTotal: virusTotalInfoSchema.optional().describe('VirusTotal analysis results.'),
@@ -30,14 +45,18 @@ const osintEnrichmentFlow = ai.defineFlow(
     name: 'osintEnrichmentFlow',
     inputSchema: OsintEnrichmentInputSchema,
     outputSchema: OsintEnrichmentOutputSchema,
-    tools: [getVirusTotalInfo],
   },
   async (input) => {
     
-    const virusTotalData = await ai.runTool('getVirusTotalInfo', { domain: new URL(input.url).hostname });
-
-    return {
-      virusTotal: virusTotalData,
-    };
+    try {
+        const virusTotalData = await getVirusTotalInfo({ domain: new URL(input.url).hostname });
+        return {
+          virusTotal: virusTotalData,
+        };
+    } catch (error) {
+        console.error("Failed to run OSINT enrichment flow", error);
+        // Return an empty object or partial data if a tool fails
+        return {};
+    }
   }
 );
