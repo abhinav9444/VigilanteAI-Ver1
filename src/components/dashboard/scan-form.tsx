@@ -25,51 +25,16 @@ import type { Vulnerability } from '@/lib/definitions';
 
 const SCAN_LOGS = [
   'Target confirmed. Initializing scanners...',
-  'Checking for open ports (Nmap)...',
   'Analyzing web server configuration...',
-  'Scanning for SQL injection vectors...',
-  'Probing for Cross-Site Scripting (XSS)...',
-  'Checking for insecure headers...',
-  'Analyzing robots.txt and sitemap.xml...',
-  'Compiling results...',
-  'Running AI-powered vulnerability generation...',
+  'Dispatching AI analysis agents to probe for weaknesses...',
+  'Generating hypothetical vulnerability report based on common attack vectors...',
+  'Probing for SQL injection vectors...',
+  'Looking for Cross-Site Scripting (XSS) opportunities...',
+  'Checking for insecure headers and misconfigurations...',
+  'Compiling results from AI agents...',
   'Running AI-powered severity assessment...',
   'Scan complete. Redirecting...',
 ];
-
-// This simulates the raw output you might get from a tool like ZAP or Nikto
-const SIMULATED_RAW_SCAN_OUTPUT = `
-{
-  "site": "https://example.com",
-  "alerts": [
-    {
-      "pluginid": "10021",
-      "alert": "X-Content-Type-Options Header Missing",
-      "name": "X-Content-Type-Options Header Missing",
-      "risk": "Low",
-      "description": "The X-Content-Type-Options header is not set. This could allow an attacker to perform MIME-sniffing attacks.",
-      "solution": "Ensure that the X-Content-Type-Options header is set to 'nosniff' for all responses."
-    },
-    {
-      "pluginid": "40012",
-      "alert": "Cross-Domain JavaScript Source File Inclusion",
-      "name": "Cross-Domain JavaScript Source File Inclusion",
-      "risk": "Medium",
-      "description": "The page includes a script from a third-party domain. This could expose the site to security risks if the third-party domain is compromised.",
-      "solution": "Host all JavaScript files on the same domain as the application."
-    },
-    {
-      "pluginid": "90022",
-      "alert": "Application Error Disclosure",
-      "name": "Application Error Disclosure",
-      "risk": "Medium",
-      "description": "The application may be leaking error messages or stack traces. This can reveal sensitive information about the application's internals.",
-      "solution": "Configure the application to show generic error pages instead of detailed error messages."
-    }
-  ]
-}
-`;
-
 
 export function ScanForm() {
   const router = useRouter();
@@ -145,7 +110,7 @@ export function ScanForm() {
         },
       });
 
-      // 2. Simulate the scan process and use AI to generate vulnerabilities
+      // 2. Use AI to generate a hypothetical list of vulnerabilities for the given URL.
       const totalScanDelay = 13000;
       const scanSteps = SCAN_LOGS.length - 3; // a few steps before AI generation
       const delayPerScanStep = totalScanDelay / scanSteps;
@@ -154,7 +119,7 @@ export function ScanForm() {
         await new Promise((resolve) => setTimeout(resolve, delayPerScanStep));
       }
       
-      const summaryResult = await summarizeScanResults({ scanOutput: SIMULATED_RAW_SCAN_OUTPUT });
+      const summaryResult = await summarizeScanResults({ targetUrl: url });
       // The summary in this case is expected to be a JSON array of vulnerabilities
       const foundVulnerabilities: Omit<Vulnerability, 'id'>[] = JSON.parse(summaryResult.summary);
 
@@ -273,7 +238,7 @@ export function ScanForm() {
                   <div className="text-sm">
                     {logs.map((log, index) => (
                        <p key={index} className="animate-in fade-in flex items-center gap-2">
-                        {(log.includes('AI-powered') || log.includes('generation')) && <Sparkles className="h-4 w-4 text-primary" />}
+                        {(log.includes('AI') || log.includes('agents')) && <Sparkles className="h-4 w-4 text-primary" />}
                         <span>{`> ${log}`}</span>
                       </p>
                     ))}

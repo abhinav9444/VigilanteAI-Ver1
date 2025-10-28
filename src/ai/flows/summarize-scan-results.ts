@@ -11,7 +11,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const SummarizeScanResultsInputSchema = z.object({
-  scanOutput: z.string().describe('Raw JSON output from a web vulnerability scan.'),
+  targetUrl: z.string().describe('The URL of the website that was scanned.'),
 });
 export type SummarizeScanResultsInput = z.infer<typeof SummarizeScanResultsInputSchema>;
 
@@ -28,12 +28,13 @@ const summarizeScanResultsPrompt = ai.definePrompt({
   name: 'summarizeScanResultsPrompt',
   input: {schema: SummarizeScanResultsInputSchema},
   output: {schema: SummarizeScanResultsOutputSchema},
-  prompt: `You are an AI-powered security analyst. Your task is to analyze the output of a web vulnerability scan and provide a summary of the findings as a JSON array.
+  prompt: `You are an AI-powered security analyst. Your task is to generate a list of 3 to 5 common, hypothetical web vulnerabilities for a given target URL.
 
-  Convert the raw scan alerts into a structured JSON array of vulnerability objects. Each object must contain the following fields: 'name', 'description', 'severity' (one of 'Critical', 'High', 'Medium', 'Low'), 'cwe', and 'remediation'.
+  The target is: {{{targetUrl}}}
 
-  Here is the scan output:
-  {{{scanOutput}}}
+  Generate a plausible, but not real, set of findings. The output must be a JSON array of vulnerability objects. Each object must contain the following fields: 'name', 'description', 'severity' (one of 'Critical', 'High', 'Medium', 'Low'), 'cwe', and 'remediation'.
+
+  For example, for a generic corporate website, you might include things like 'Cross-Site Scripting (XSS) in search bar' or 'Outdated Server Software'.
   `,
 });
 
