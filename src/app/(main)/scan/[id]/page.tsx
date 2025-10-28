@@ -27,18 +27,19 @@ import ScanLoading from './loading';
 import { cn } from '@/lib/utils';
 import { ChainOfCustodyInfo } from '@/components/scan/chain-of-custody';
 import { AttackPathSimulation } from '@/components/scan/attack-path-simulation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { generateAttackStory, GenerateAttackStoryOutput } from '@/ai/flows/generate-attack-story';
 import { enrichScanWithOsint } from '@/ai/flows/osint-enrichment';
 
-export default function ScanPage({ params }: { params: { id: string } }) {
+export default function ScanPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const { user } = useUser();
   const firestore = useFirestore();
 
   const scanRef = useMemoFirebase(() => {
     if (!user) return null;
-    return doc(firestore, 'users', user.uid, 'scans', params.id);
-  }, [user, firestore, params.id]);
+    return doc(firestore, 'users', user.uid, 'scans', id);
+  }, [user, firestore, id]);
 
   const { data: scan, isLoading: isScanLoading, error } = useDoc<Scan>(scanRef);
   const [attackStory, setAttackStory] = useState<GenerateAttackStoryOutput | null>(null);
