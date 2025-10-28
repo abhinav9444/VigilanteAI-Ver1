@@ -13,8 +13,7 @@ import Papa from 'papaparse';
 import { Skeleton } from '../ui/skeleton';
 import { VigilanteAiLogo } from '../logo';
 import { getScanSummary } from '@/ai/flows/get-scan-summary';
-import { enrichScanWithOsint } from '@/ai/flows/osint-enrichment';
-import { generateAttackStory, GenerateAttackStoryOutput } from '@/ai/flows/generate-attack-story';
+import { GenerateAttackStoryOutput } from '@/ai/flows/generate-attack-story';
 
 // Extend jsPDF with autoTable
 declare module 'jspdf' {
@@ -30,10 +29,10 @@ type UserProfile = {
 
 // Helper function for adding footers to PDF
 const addFooters = (pdf: jsPDF) => {
-    const pageCount = pdf.getNumberOfPages();
+    const pageCount = pdf.internal.pageSize.getHeight() > 840 ? pdf.internal.pages.length -1 : pdf.internal.pages.length - 2;
     pdf.setFont('helvetica', 'italic');
     pdf.setFontSize(8);
-    for (let i = 1; i <= pageCount; i++) {
+    for (let i = 1; i <= pageCount + 1; i++) {
         pdf.setPage(i);
         pdf.text(
             `© ${new Date().getFullYear()} VigilanteAI. All rights reserved.`,
@@ -42,7 +41,7 @@ const addFooters = (pdf: jsPDF) => {
             { align: 'center' }
         );
         pdf.text(
-            `Page ${i} of ${pageCount}`,
+            `Page ${i} of ${pageCount+1}`,
             pdf.internal.pageSize.width - 20,
             pdf.internal.pageSize.height - 10
         );
@@ -56,7 +55,15 @@ const formatDate = (timestamp: Timestamp | string | undefined) => {
 };
 
 
-export function ReportHeader({ scan }: { scan: Scan }) {
+export function ReportHeader({ 
+    scan, 
+    attackStory, 
+    osintData 
+}: { 
+    scan: Scan;
+    attackStory: GenerateAttackStoryOutput | null;
+    osintData: OsintEnrichmentOutput | null;
+}) {
   const { user } = useUser();
   const firestore = useFirestore();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -94,40 +101,41 @@ export function ReportHeader({ scan }: { scan: Scan }) {
         const margin = 20;
         let currentY = 0;
 
-        // --- Fetch all required data ---
-        const [summaryResult, osintData, attackStory] = await Promise.all([
-            getScanSummary({ scanDetails: JSON.stringify(scan) }),
-            enrichScanWithOsint({ url: scan.url }),
-            scan.vulnerabilities && scan.vulnerabilities.length > 0
-                ? generateAttackStory({ scanDetails: JSON.stringify(scan) })
-                : Promise.resolve(null),
-        ]);
-
+        // --- Fetch summary data ---
+        const summaryResult = await getScanSummary({ scanDetails: JSON.stringify(scan) });
 
         // --- Title Page ---
+        currentY = 40;
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(24);
-        pdf.text('VigilanteAI', pageWidth / 2, 40, { align: 'center' });
-
+        pdf.text('VigilanteAI', pageWidth / 2, currentY, { align: 'center' });
+        currentY += 10;
+        
         pdf.setFontSize(16);
-        pdf.text('Vulnerability Scan Report', pageWidth / 2, 50, { align: 'center' });
+        pdf.text('Vulnerability Scan Report', pageWidth / 2, currentY, { align: 'center' });
+        currentY += 20;
 
         pdf.setFontSize(12);
         pdf.setFont('helvetica', 'normal');
-        pdf.text(`Target URL: ${scan.url}`, pageWidth / 2, 70, { align: 'center' });
-        pdf.text(`Date: ${formatDate(scan.completedAt)}`, pageWidth / 2, 80, { align: 'center' });
+        pdf.text(`Target URL: ${scan.url}`, pageWidth / 2, currentY, { align: 'center' });
+        currentY += 10;
+        pdf.text(`Date: ${formatDate(scan.completedAt)}`, pageWidth / 2, currentY, { align: 'center' });
+        currentY += 20;
         
         pdf.setLineWidth(0.5);
-        pdf.line(margin, 100, pageWidth - margin, 100);
+        pdf.line(margin, currentY, pageWidth - margin, currentY);
+        currentY += 20;
 
         pdf.setFont('helvetica', 'bold');
-        pdf.text('Report Prepared For:', pageWidth / 2, 120, { align: 'center' });
+        pdf.text('Report Prepared For:', pageWidth / 2, currentY, { align: 'center' });
+        currentY += 10;
         pdf.setFont('helvetica', 'normal');
-        pdf.text(profile.name || 'N/A', pageWidth / 2, 130, { align: 'center' });
+        pdf.text(profile.name || 'N/A', pageWidth / 2, currentY, { align: 'center' });
+        currentY += 5;
         if(profile.reportHeader) {
             pdf.setFontSize(10);
             pdf.setTextColor(100);
-            pdf.text(profile.reportHeader, pageWidth / 2, 135, { align: 'center' });
+            pdf.text(profile.reportHeader, pageWidth / 2, currentY, { align: 'center' });
         }
 
         const addSectionTitle = (title: string, y: number) => {
@@ -150,14 +158,17 @@ export function ReportHeader({ scan }: { scan: Scan }) {
         
         // --- Attack Path Simulation ---
         if(attackStory && attackStory.attackStory && attackStory.attackStory.length > 0) {
-            pdf.addPage();
-            currentY = addSectionTitle('2. Attack Path Simulation', 30);
+            currentY = addSectionTitle('2. Attack Path Simulation', currentY);
             pdf.setFontSize(10);
             pdf.setTextColor(100);
             pdf.text("A plausible attack narrative generated by AI based on the findings.", margin, currentY - 10);
 
             pdf.setFontSize(12);
             attackStory.attackStory.forEach(step => {
+                if (currentY > pdf.internal.pageSize.height - 30) {
+                    pdf.addPage();
+                    currentY = 30;
+                }
                 pdf.setFont('helvetica', 'bold');
                 pdf.text(`${step.step}. ${step.title}`, margin, currentY);
                 currentY += 7;
@@ -197,7 +208,7 @@ export function ReportHeader({ scan }: { scan: Scan }) {
             currentY += (splitValue.length * 5) + 2;
         }
         
-        if(osintData.virusTotal) {
+        if(osintData?.virusTotal) {
             addSubSection('VirusTotal Analysis');
             const stats = osintData.virusTotal.last_analysis_stats;
             const total = stats ? Object.values(stats).reduce((a,b) => a+b, 0) : 0;
@@ -205,21 +216,25 @@ export function ReportHeader({ scan }: { scan: Scan }) {
             addInfoRow('Score:', osintData.virusTotal.reputation);
             currentY += 5;
         }
-        if(osintData.whois) {
+        if(osintData?.whois) {
             addSubSection('WHOIS Information');
             addInfoRow('Registrar:', osintData.whois.registrarName);
             addInfoRow('Created On:', osintData.whois.createdDate ? new Date(osintData.whois.createdDate).toLocaleDateString() : 'N/A');
             addInfoRow('Expires On:', osintData.whois.expiresDate ? new Date(osintData.whois.expiresDate).toLocaleDateString() : 'N/A');
             currentY += 5;
         }
-        if(osintData.shodan && !osintData.shodan.error) {
+        if(osintData?.shodan && !osintData.shodan.error) {
              addSubSection('Shodan Host Lookup');
              addInfoRow('IP Address:', osintData.shodan.ip_str);
              addInfoRow('Organization:', osintData.shodan.org);
              addInfoRow('Open Ports:', osintData.shodan.ports?.join(', '));
              currentY += 5;
         }
-        if(osintData.sslmale && osintData.sslmale.length > 0) {
+        if(osintData?.sslmale && osintData.sslmale.length > 0) {
+            if (currentY > pdf.internal.pageSize.height - 50) {
+                pdf.addPage();
+                currentY = 30;
+            }
             addSubSection('SSL Certificate Issuances');
              pdf.autoTable({
                 startY: currentY,
@@ -239,8 +254,13 @@ export function ReportHeader({ scan }: { scan: Scan }) {
 
         // --- Vulnerabilities Section ---
         if (scan.vulnerabilities && scan.vulnerabilities.length > 0) {
-            pdf.addPage();
-            currentY = addSectionTitle('4. Vulnerability Details', 30);
+            if (currentY > pdf.internal.pageSize.height - 50) {
+                pdf.addPage();
+                currentY = 30;
+            } else {
+                 currentY += 10;
+            }
+            currentY = addSectionTitle('4. Vulnerability Details', currentY);
 
             pdf.autoTable({
                 startY: currentY,
@@ -254,22 +274,27 @@ export function ReportHeader({ scan }: { scan: Scan }) {
                 headStyles: { fillColor: [30, 144, 255], textColor: 255, fontStyle: 'bold' },
                 didDrawPage: (data) => { currentY = data.cursor?.y || currentY; }
             });
+            currentY += 5;
 
             // --- Detailed Vulnerability Pages ---
             scan.vulnerabilities.forEach((vuln, index) => {
                 pdf.addPage();
+                currentY = 30;
                 pdf.setFontSize(16);
                 pdf.setFont('helvetica', 'bold');
-                pdf.text(`${index + 1}. ${vuln.name}`, margin, 30);
+                const splitTitle = pdf.splitTextToSize(`${index + 1}. ${vuln.name}`, pageWidth - margin*2);
+                pdf.text(splitTitle, margin, currentY);
+                currentY += (splitTitle.length * 5) + 10;
 
                 pdf.setFontSize(12);
                 pdf.setFont('helvetica', 'bold');
-                pdf.text('Severity:', margin, 45);
+                pdf.text('Severity:', margin, currentY);
                 pdf.setFont('helvetica', 'normal');
-                pdf.text(vuln.assessedSeverity || vuln.severity, margin + 25, 45);
-
-                currentY = 55;
+                pdf.text(vuln.assessedSeverity || vuln.severity, margin + 25, currentY);
+                currentY += 10;
+                
                 const addDetailSection = (title: string, text: string) => {
+                     if (!text) return;
                      if (currentY > pdf.internal.pageSize.height - 40) {
                         pdf.addPage();
                         currentY = 30;
@@ -310,7 +335,7 @@ export function ReportHeader({ scan }: { scan: Scan }) {
         currentY = addSectionTitle('LEGAL DISCLAIMER & NOTICE', 30);
 
         const addDisclaimerText = (title: string, content: string | string[], isListItem = false) => {
-            if (currentY > pdf.internal.pageSize.height - 30) {
+            if (currentY > pdf.internal.pageSize.height - 25) {
                 pdf.addPage();
                 currentY = 30;
             }
@@ -326,9 +351,13 @@ export function ReportHeader({ scan }: { scan: Scan }) {
             pdf.setFontSize(10);
             const textArray = Array.isArray(content) ? content : [content];
             textArray.forEach(line => {
+                if (currentY > pdf.internal.pageSize.height - 20) {
+                    pdf.addPage();
+                    currentY = 30;
+                }
                 const prefix = isListItem ? '•  ' : '';
-                const splitText = pdf.splitTextToSize(prefix + line, pageWidth - (margin * 2));
-                pdf.text(splitText, margin, currentY);
+                const splitText = pdf.splitTextToSize(prefix + line, pageWidth - (margin * 2) - (isListItem ? 5 : 0));
+                pdf.text(splitText, margin + (isListItem ? 5 : 0), currentY);
                 currentY += (splitText.length * 4) + 2;
             });
             currentY += 5;
@@ -343,7 +372,6 @@ export function ReportHeader({ scan }: { scan: Scan }) {
           'The developers, contributors, and maintainers of VigilanteAI assume no liability for misuse, damages, or legal consequences arising from unauthorized or unethical use of this software.'
         ], true);
         
-        currentY += 5;
         addDisclaimerText('', 'This tool should be used for defensive and educational cybersecurity purposes only, such as:');
         addDisclaimerText('', [
             'Security auditing of authorized assets',
@@ -351,7 +379,6 @@ export function ReportHeader({ scan }: { scan: Scan }) {
             'Internal organization security assessments'
         ], true);
 
-        currentY += 5;
         addDisclaimerText('Warning', 'Engaging in unauthorized scanning or data probing activities on systems without permission is illegal and may lead to civil or criminal penalties. Always obtain proper authorization before running any scan.');
 
         addDisclaimerText('Ethical Usage', 'VigilanteAI supports responsible disclosure practices. If vulnerabilities are discovered, users are encouraged to notify affected parties responsibly and in good faith.');
@@ -444,5 +471,3 @@ export function ReportHeader({ scan }: { scan: Scan }) {
     </div>
   );
 }
-
-    

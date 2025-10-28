@@ -1,6 +1,6 @@
+
 'use client';
 
-import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -17,15 +17,12 @@ import {
   ShieldQuestion,
   BookUser,
   Calendar,
-  Contact,
   Building,
   HardDrive,
   Code,
-  Fingerprint,
-  Users,
-  ScrollText
+  ScrollText,
+  Users
 } from 'lucide-react';
-import { enrichScanWithOsint } from '@/ai/flows/osint-enrichment';
 import { OsintEnrichmentOutput } from '@/lib/definitions';
 import { Skeleton } from '../ui/skeleton';
 import { Separator } from '../ui/separator';
@@ -77,37 +74,17 @@ function OsintSkeleton() {
     )
 }
 
-export function OsintEnrichment({ url }: { url: string }) {
-  const [data, setData] = useState<OsintEnrichmentOutput | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const result = await enrichScanWithOsint({ url });
-        setData(result);
-      } catch (err) {
-        console.error('Failed to fetch OSINT data:', err);
-        setError('Could not load threat intelligence data.');
-      }
-      setIsLoading(false);
-    }
-    fetchData();
-  }, [url]);
-
+export function OsintEnrichment({ data, isLoading }: { data: OsintEnrichmentOutput | null; isLoading: boolean; }) {
   if (isLoading) {
     return <OsintSkeleton />;
   }
 
-  if (error) {
+  if (!data) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
         <AlertTriangle className="h-16 w-16 text-destructive" />
         <h3 className="text-2xl font-bold tracking-tight">An Error Occurred</h3>
-        <p className="text-muted-foreground">{error}</p>
+        <p className="text-muted-foreground">Could not load threat intelligence data.</p>
       </div>
     );
   }

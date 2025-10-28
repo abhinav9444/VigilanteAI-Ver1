@@ -22,11 +22,14 @@ import { Separator } from '@/components/ui/separator';
 import { ReportHeader } from '@/components/scan/report-header';
 import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import type { Scan } from '@/lib/definitions';
+import type { OsintEnrichmentOutput, Scan } from '@/lib/definitions';
 import ScanLoading from './loading';
 import { cn } from '@/lib/utils';
 import { ChainOfCustodyInfo } from '@/components/scan/chain-of-custody';
 import { AttackPathSimulation } from '@/components/scan/attack-path-simulation';
+import { useEffect, useState } from 'react';
+import { generateAttackStory, GenerateAttackStoryOutput } from '@/ai/flows/generate-attack-story';
+import { enrichScanWithOsint } from '@/ai/flows/osint-enrichment';
 
 export default function ScanPage({ params }: { params: { id: string } }) {
   const { user } = useUser();
@@ -37,9 +40,44 @@ export default function ScanPage({ params }: { params: { id: string } }) {
     return doc(firestore, 'users', user.uid, 'scans', params.id);
   }, [user, firestore, params.id]);
 
-  const { data: scan, isLoading, error } = useDoc<Scan>(scanRef);
+  const { data: scan, isLoading: isScanLoading, error } = useDoc<Scan>(scanRef);
+  const [attackStory, setAttackStory] = useState<GenerateAttackStoryOutput | null>(null);
+  const [osintData, setOsintData] = useState<OsintEnrichmentOutput | null>(null);
+  const [isEnrichmentLoading, setIsEnrichmentLoading] = useState(true);
 
-  if (isLoading || (!scan && !error)) {
+  useEffect(() => {
+    if (scan) {
+      const fetchEnrichmentData = async () => {
+        setIsEnrichmentLoading(true);
+        // Fetch attack story and OSINT in parallel
+        const [storyResult, osintResult] = await Promise.allSettled([
+          scan.vulnerabilities && scan.vulnerabilities.length > 0
+            ? generateAttackStory({ scanDetails: JSON.stringify(scan) })
+            : Promise.resolve(null),
+          enrichScanWithOsint({ url: scan.url })
+        ]);
+
+        if (storyResult.status === 'fulfilled') {
+          setAttackStory(storyResult.value);
+        } else {
+          console.error("Failed to generate attack story:", storyResult.reason);
+          setAttackStory(null);
+        }
+
+        if (osintResult.status === 'fulfilled') {
+          setOsintData(osintResult.value);
+        } else {
+          console.error("Failed to fetch OSINT data:", osintResult.reason);
+          setOsintData(null);
+        }
+        setIsEnrichmentLoading(false);
+      };
+      fetchEnrichmentData();
+    }
+  }, [scan]);
+
+
+  if (isScanLoading || (!scan && !error)) {
     return <ScanLoading />;
   }
 
@@ -82,7 +120,7 @@ export default function ScanPage({ params }: { params: { id: string } }) {
 
   return (
     <div id="report-content" className="space-y-6">
-      <ReportHeader scan={scan} />
+      <ReportHeader scan={scan} attackStory={attackStory} osintData={osintData} />
       
       <Separator />
 
@@ -117,7 +155,7 @@ export default function ScanPage({ params }: { params: { id: string } }) {
         </TabsList>
         <TabsContent value="summary" className="space-y-4">
           <ScanSummary scan={scan} />
-          {scan.vulnerabilities && scan.vulnerabilities.length > 0 && <AttackPathSimulation scan={scan} />}
+          {scan.vulnerabilities && scan.vulnerabilities.length > 0 && <AttackPathSimulation story={attackStory} isLoading={isEnrichmentLoading} />}
           {scan.chainOfCustody && <ChainOfCustodyInfo coc={scan.chainOfCustody} />}
         </TabsContent>
         <TabsContent value="details">
@@ -149,7 +187,7 @@ export default function ScanPage({ params }: { params: { id: string } }) {
           </Card>
         </TabsContent>
         <TabsContent value="osint">
-          <OsintEnrichment url={scan.url} />
+          <OsintEnrichment data={osintData} isLoading={isEnrichmentLoading} />
         </TabsContent>
         <TabsContent value="assistant">
           <AiAssistant scanDetails={JSON.stringify(scan, null, 2)} />
