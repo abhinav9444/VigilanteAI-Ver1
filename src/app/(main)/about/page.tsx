@@ -18,12 +18,6 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { teamMembers, projectGuide } from '@/lib/about-data';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from '@/components/ui/carousel';
-import Autoplay from 'embla-carousel-autoplay';
 import { TechLogos } from '@/components/tech-logos';
 
 const techStack = [
@@ -98,34 +92,15 @@ export default function AboutPage() {
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Technology Stack</h2>
          <p className="text-muted-foreground mt-1">Powered by modern technologies and AI-driven intelligence.</p>
-        <div className="mt-4">
-          <Carousel
-            plugins={[
-              Autoplay({
-                delay: 2000,
-              }),
-            ]}
-            opts={{
-              align: 'start',
-              loop: true,
-            }}
-            className="w-full"
-          >
-            <CarouselContent>
-              {techStack.map((tech, index) => (
-                <CarouselItem key={index} className="basis-1/2 md:basis-1/3 lg:basis-1/5">
-                  <div className="p-1">
-                    <Card>
-                      <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
-                        <tech.Icon className="h-16 w-16 text-foreground" />
-                        <span className="text-md font-semibold mt-4">{tech.name}</span>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {techStack.map((tech, index) => (
+                <Card key={index} className="transition-all hover:shadow-md hover:-translate-y-1">
+                    <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
+                    <tech.Icon className="h-16 w-16 text-foreground" />
+                    <span className="text-md font-semibold mt-4 text-center">{tech.name}</span>
+                    </CardContent>
+                </Card>
+            ))}
         </div>
       </div>
 
