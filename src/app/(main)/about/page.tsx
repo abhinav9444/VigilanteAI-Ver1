@@ -196,6 +196,19 @@ export default function AboutPage() {
       <Separator />
 
       <div>
+        <h2 className="text-2xl font-bold tracking-tight">Special Thanks</h2>
+         <Card className="mt-4">
+            <CardContent className="p-6 text-muted-foreground">
+                <p>
+                We extend our sincere gratitude to our guide, Dr. Ranjita Kumari Dash, for her mentorship, and to the Department of Computer Science for continuous support.
+                </p>
+            </CardContent>
+        </Card>
+      </div>
+
+      <Separator />
+
+      <div>
         <h2 className="text-2xl font-bold tracking-tight">Meet the Team</h2>
         <div className="grid gap-6 mt-4 md:grid-cols-2 lg:grid-cols-3">
           {teamMembers.map((member) => (
