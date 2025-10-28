@@ -326,11 +326,9 @@ export function ReportHeader({ scan }: { scan: Scan }) {
             pdf.setFontSize(10);
             const textArray = Array.isArray(content) ? content : [content];
             textArray.forEach(line => {
-                const prefix = isListItem ? '• ' : '';
-                const splitText = pdf.splitTextToSize(line, pageWidth - (margin * 2) - (isListItem ? 5 : 0));
-                pdf.text(splitText, margin + (isListItem ? 5 : 0), currentY, {
-                    charSpace: isListItem ? 1 : 0
-                });
+                const prefix = isListItem ? '•  ' : '';
+                const splitText = pdf.splitTextToSize(prefix + line, pageWidth - (margin * 2));
+                pdf.text(splitText, margin, currentY);
                 currentY += (splitText.length * 4) + 2;
             });
             currentY += 5;
@@ -339,15 +337,19 @@ export function ReportHeader({ scan }: { scan: Scan }) {
         addDisclaimerText('Disclaimer', 'VigilanteAI is a cybersecurity research and educational tool designed to assist users in identifying potential vulnerabilities on systems they own or have explicit authorization to test. It is intended solely for lawful and ethical use in compliance with applicable cybersecurity and data protection laws.');
         
         addDisclaimerText('Notice of Authorized Use', 'By using VigilanteAI, you acknowledge and agree that:');
-        addDisclaimerText('', 'You will only scan systems, websites, or networks that you personally own or for which you have explicit, written consent from the owner.', true);
-        addDisclaimerText('', 'You understand that unauthorized vulnerability scanning, penetration testing, or exploitation of third-party systems may violate laws such as the Indian IT Act 2000, the Computer Misuse Act, or other regional cybersecurity regulations.', true);
-        addDisclaimerText('', 'The developers, contributors, and maintainers of VigilanteAI assume no liability for misuse, damages, or legal consequences arising from unauthorized or unethical use of this software.', true);
+        addDisclaimerText('', [
+          'You will only scan systems, websites, or networks that you personally own or for which you have explicit, written consent from the owner.',
+          'You understand that unauthorized vulnerability scanning, penetration testing, or exploitation of third-party systems may violate laws such as the Indian IT Act 2000, the Computer Misuse Act, or other regional cybersecurity regulations.',
+          'The developers, contributors, and maintainers of VigilanteAI assume no liability for misuse, damages, or legal consequences arising from unauthorized or unethical use of this software.'
+        ], true);
         
         currentY += 5;
         addDisclaimerText('', 'This tool should be used for defensive and educational cybersecurity purposes only, such as:');
-        addDisclaimerText('', 'Security auditing of authorized assets', true);
-        addDisclaimerText('', 'Academic research and learning', true);
-        addDisclaimerText('', 'Internal organization security assessments', true);
+        addDisclaimerText('', [
+            'Security auditing of authorized assets',
+            'Academic research and learning',
+            'Internal organization security assessments'
+        ], true);
 
         currentY += 5;
         addDisclaimerText('Warning', 'Engaging in unauthorized scanning or data probing activities on systems without permission is illegal and may lead to civil or criminal penalties. Always obtain proper authorization before running any scan.');
@@ -442,7 +444,5 @@ export function ReportHeader({ scan }: { scan: Scan }) {
     </div>
   );
 }
-
-    
 
     
