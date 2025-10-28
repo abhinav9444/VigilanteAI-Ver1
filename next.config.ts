@@ -45,6 +45,7 @@ const nextConfig: NextConfig = {
     VIRUSTOTAL_API_KEY: process.env.VIRUSTOTAL_API_KEY,
     WHOISXML_API_KEY: process.env.WHOISXML_API_KEY,
     SHODAN_API_KEY: process.env.SHODAN_API_KEY,
+    SSLMATE_API_KEY: process.env.SSLMATE_API_KEY,
   }
 };
 

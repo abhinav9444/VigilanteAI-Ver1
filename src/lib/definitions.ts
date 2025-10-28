@@ -87,10 +87,23 @@ export const ShodanDataSchema = z.object({
 }).nullable();
 export type ShodanData = z.infer<typeof ShodanDataSchema>;
 
+// Schema for SSLMate Cert Spotter
+export const SslmateDataSchema = z.object({
+  id: z.number(),
+  dns_names: z.array(z.string()),
+  issuer: z.object({
+    name: z.string(),
+    common_name: z.string(),
+  }),
+  created_at: z.string(),
+});
+export type SslmateData = z.infer<typeof SslmateDataSchema>;
+
 
 export const OsintEnrichmentOutputSchema = z.object({
     virusTotal: virusTotalToolOutputSchema.optional().describe('VirusTotal analysis results.'),
     whois: whoisInfoSchema.optional().describe('WHOIS information.'),
     shodan: ShodanDataSchema.optional().describe('Shodan host lookup results.'),
+    sslmale: z.array(SslmateDataSchema).optional().describe('SSLMate certificate issuance results.')
 });
 export type OsintEnrichmentOutput = z.infer<typeof OsintEnrichmentOutputSchema>;

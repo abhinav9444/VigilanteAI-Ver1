@@ -7,7 +7,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { getVirusTotalInfo, getWhoisInfo, getShodanInfo, getIpAddress } from '../tools/osint-tools';
+import { getVirusTotalInfo, getWhoisInfo, getShodanInfo, getIpAddress, getSslmateInfo } from '../tools/osint-tools';
 import { OsintEnrichmentInputSchema, OsintEnrichmentOutput, OsintEnrichmentOutputSchema, OsintEnrichmentInput } from '@/lib/definitions';
 
 
@@ -27,16 +27,18 @@ const osintEnrichmentFlow = ai.defineFlow(
         const hostname = new URL(input.url).hostname;
         const ip = await getIpAddress({ domain: hostname });
         
-        const [virusTotalData, whoisData, shodanData] = await Promise.all([
+        const [virusTotalData, whoisData, shodanData, sslmateData] = await Promise.all([
             getVirusTotalInfo({ domain: hostname }),
             getWhoisInfo({ domain: hostname }),
-            ip ? getShodanInfo({ ip }) : Promise.resolve(null)
+            ip ? getShodanInfo({ ip }) : Promise.resolve(null),
+            getSslmateInfo({ domain: hostname })
         ]);
 
         return {
           virusTotal: virusTotalData,
           whois: whoisData?.WhoisRecord,
           shodan: shodanData,
+          sslmale: sslmateData,
         };
     } catch (error) {
         console.error("Failed to run OSINT enrichment flow", error);

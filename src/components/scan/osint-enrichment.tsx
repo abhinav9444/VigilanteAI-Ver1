@@ -20,13 +20,17 @@ import {
   Contact,
   Building,
   HardDrive,
-  Code
+  Code,
+  Fingerprint,
+  Users,
+  ScrollText
 } from 'lucide-react';
 import { enrichScanWithOsint } from '@/ai/flows/osint-enrichment';
 import { OsintEnrichmentOutput } from '@/lib/definitions';
 import { Skeleton } from '../ui/skeleton';
 import { Separator } from '../ui/separator';
 import { Badge } from '../ui/badge';
+import { ScrollArea } from '../ui/scroll-area';
 
 function InfoRow({
   icon: Icon,
@@ -55,8 +59,8 @@ function InfoRow({
 
 function OsintSkeleton() {
     return (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(3)].map((_, i) => (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
                 <Card key={i}>
                     <CardHeader>
                         <Skeleton className="h-6 w-1/2" />
@@ -117,9 +121,10 @@ export function OsintEnrichment({ url }: { url: string }) {
 
   const whoisRecord = data?.whois;
   const shodanRecord = data?.shodan;
+  const sslmateRecords = data?.sslmale;
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -193,6 +198,34 @@ export function OsintEnrichment({ url }: { url: string }) {
             ): (
                  <p className='text-sm text-muted-foreground'>{shodanRecord?.error || 'No Shodan data available.'}</p>
             )}
+        </CardContent>
+      </Card>
+      <Card className="flex flex-col">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ScrollText /> SSL/TLS Certificate Analysis
+          </CardTitle>
+          <CardDescription>Certificate Transparency logs from SSLMate.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4 flex-grow">
+          {sslmateRecords && sslmateRecords.length > 0 ? (
+            <ScrollArea className="h-48">
+              <div className="space-y-4">
+                {sslmateRecords.map((cert) => (
+                  <div key={cert.id} className="p-3 rounded-md border bg-muted/50">
+                    <p className="font-semibold text-xs truncate">{cert.dns_names.join(', ')}</p>
+                    <Separator className="my-2" />
+                    <div className="text-xs text-muted-foreground space-y-1">
+                       <p className="flex items-center gap-2"><Users size={14} /> <strong>Issuer:</strong> {cert.issuer.common_name}</p>
+                       <p className="flex items-center gap-2"><Calendar size={14} /> <strong>Issued:</strong> {new Date(cert.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          ) : (
+            <p className="text-sm text-muted-foreground">No certificate issuance data available.</p>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -4,7 +4,7 @@
  */
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { ShodanDataSchema, virusTotalToolOutputSchema } from '@/lib/definitions';
+import { ShodanDataSchema, virusTotalToolOutputSchema, SslmateDataSchema } from '@/lib/definitions';
 import dns from 'dns';
 import { promisify } from 'util';
 
@@ -148,4 +148,44 @@ export const getShodanInfo = ai.defineTool(
       throw error;
     }
   }
+);
+
+
+export const getSslmateInfo = ai.defineTool(
+    {
+        name: 'getSslmateInfo',
+        description: 'Retrieves SSL/TLS certificate information from SSLMate Cert Spotter API.',
+        inputSchema: z.object({
+            domain: z.string().describe('The domain to query for certificate issuances.'),
+        }),
+        outputSchema: z.array(SslmateDataSchema),
+    },
+    async (input) => {
+        const apiKey = process.env.SSLMATE_API_KEY;
+        if (!apiKey) {
+            console.warn('SSLMate API key not configured.');
+            return []; // Return empty array if no key
+        }
+
+        const url = `https://api.certspotter.com/v1/issuances?domain=${input.domain}&include_subdomains=true&expand=dns_names,issuer`;
+        
+        const headers = {
+            'Authorization': `Bearer ${apiKey}`
+        };
+
+        try {
+            const response = await fetch(url, { headers });
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`SSLMate API error: ${response.status} ${response.statusText}`, errorText);
+                // Return empty array on error to avoid breaking the entire OSINT flow
+                return []; 
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error calling SSLMate API:', error);
+            return [];
+        }
+    }
 );
