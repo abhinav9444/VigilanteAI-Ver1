@@ -22,16 +22,18 @@ export default function AuthLayout({
 
   return (
     <div className="flex min-h-screen w-full">
-      <div className="relative hidden w-1/2 flex-col justify-between bg-primary p-8 text-primary-foreground lg:flex">
+      <div className="relative hidden w-1/2 flex-col justify-between p-8 text-primary-foreground lg:flex">
         {authBgImage && (
           <Image
             src={authBgImage.imageUrl}
             alt={authBgImage.description}
             fill
-            className="object-cover opacity-10"
+            className="object-cover"
             data-ai-hint={authBgImage.imageHint}
+            priority
           />
         )}
+        <div className="absolute inset-0 bg-zinc-900/80" />
         <div className="relative z-10 flex items-center gap-2 text-2xl font-bold">
           <VigilanteAiLogo className="h-8 w-8" />
           VigilanteAI
