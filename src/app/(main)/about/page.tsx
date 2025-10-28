@@ -242,16 +242,6 @@ export default function AboutPage() {
               affected parties responsibly and in good faith.
             </p>
           </div>
-          <div>
-            <h3 className="font-semibold text-foreground mb-2">
-              Contact / Responsibility
-            </h3>
-            <p className="text-muted-foreground">
-              For ethical use, testing permissions, or collaboration, please
-              contact the project administrator or maintainers before initiating
-              any scans.
-            </p>
-          </div>
         </CardContent>
       </Card>
 
