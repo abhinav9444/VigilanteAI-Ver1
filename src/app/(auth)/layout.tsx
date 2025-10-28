@@ -105,7 +105,12 @@ export default function AuthLayout({
               <p>B.Tech Computer Science and Engineering - 2022 Batch</p>
             </div>
           </div>
-          <div>
+          <div
+            className={cn(
+              'transition-opacity duration-1000 ease-in-out',
+              isImageLoaded ? 'opacity-100' : 'opacity-0'
+            )}
+          >
             <p className="text-lg">"{currentQuote.text}"</p>
             <footer className="mt-4 text-sm opacity-80">
               - {currentQuote.author}
