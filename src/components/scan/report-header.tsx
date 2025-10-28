@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -85,7 +86,9 @@ export function ReportHeader({ scan }: { scan: Scan }) {
     try {
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
         const margin = 20;
+        let currentY = 0;
 
         // --- Title Page ---
         pdf.setFont('helvetica', 'bold');
@@ -129,59 +132,127 @@ export function ReportHeader({ scan }: { scan: Scan }) {
         pdf.text(splitSummary, margin, 45);
 
         // --- Vulnerabilities Section ---
+        if (scan.vulnerabilities.length > 0) {
+            pdf.addPage();
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(18);
+            pdf.text('2. Vulnerability Details', margin, 30);
+
+            const tableColumn = ["Severity", "Vulnerability", "CWE"];
+            const tableRows: (string[])[] = [];
+
+            scan.vulnerabilities.forEach(vuln => {
+                const vulnData = [
+                    vuln.severity,
+                    vuln.name,
+                    vuln.cwe,
+                ];
+                tableRows.push(vulnData);
+            });
+
+            pdf.autoTable({
+                startY: 40,
+                head: [tableColumn],
+                body: tableRows,
+                theme: 'striped',
+                headStyles: { fillColor: [30, 144, 255] } // Saturated blue
+            });
+
+            // --- Detailed Vulnerability Pages ---
+            scan.vulnerabilities.forEach((vuln, index) => {
+                pdf.addPage();
+                pdf.setFontSize(16);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text(`${index + 1}. ${vuln.name}`, margin, 30);
+
+                pdf.setFontSize(12);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('Severity:', margin, 45);
+                pdf.setFont('helvetica', 'normal');
+                pdf.text(vuln.severity, margin + 25, 45);
+
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('Description:', margin, 55);
+                pdf.setFont('helvetica', 'normal');
+                const splitDescription = pdf.splitTextToSize(vuln.description, pageWidth - margin * 2);
+                currentY = 62;
+                pdf.text(splitDescription, margin, currentY);
+                currentY += (splitDescription.length * 5); // Estimate new Y
+
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('Remediation:', margin, currentY + 10);
+                pdf.setFont('helvetica', 'normal');
+                const splitRemediation = pdf.splitTextToSize(vuln.remediation, pageWidth - margin * 2);
+                pdf.text(splitRemediation, margin, currentY + 17);
+            });
+        }
+        
+        // --- Legal Disclaimer Page ---
         pdf.addPage();
+        currentY = 30;
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(18);
-        pdf.text('2. Vulnerability Details', margin, 30);
+        pdf.text('LEGAL DISCLAIMER & NOTICE', margin, currentY);
+        currentY += 15;
 
-        const tableColumn = ["Severity", "Vulnerability", "CWE"];
-        const tableRows: (string[])[] = [];
-
-        scan.vulnerabilities.forEach(vuln => {
-            const vulnData = [
-                vuln.severity,
-                vuln.name,
-                vuln.cwe,
-            ];
-            tableRows.push(vulnData);
-        });
-
-        pdf.autoTable({
-            startY: 40,
-            head: [tableColumn],
-            body: tableRows,
-            theme: 'striped',
-            headStyles: { fillColor: [30, 144, 255] } // Saturated blue
-        });
-
-        // --- Detailed Vulnerability Pages ---
-        scan.vulnerabilities.forEach((vuln, index) => {
-            pdf.addPage();
-            pdf.setFontSize(16);
+        const addSection = (title: string, text: string | string[], isBold = false) => {
+            if (currentY > pageHeight - margin * 2) {
+                pdf.addPage();
+                currentY = 30;
+            }
             pdf.setFont('helvetica', 'bold');
-            pdf.text(`${index + 1}. ${vuln.name}`, margin, 30);
-
             pdf.setFontSize(12);
-            pdf.setFont('helvetica', 'bold');
-            pdf.text('Severity:', margin, 45);
-            pdf.setFont('helvetica', 'normal');
-            pdf.text(vuln.severity, margin + 25, 45);
+            pdf.text(title, margin, currentY);
+            currentY += 7;
 
-            pdf.setFont('helvetica', 'bold');
-            pdf.text('Description:', margin, 55);
-            pdf.setFont('helvetica', 'normal');
-            const splitDescription = pdf.splitTextToSize(vuln.description, pageWidth - margin * 2);
-            pdf.text(splitDescription, margin, 62);
-            
-            let currentY = 62 + (splitDescription.length * 5); // Estimate new Y
+            pdf.setFont('helvetica', isBold ? 'bold' : 'normal');
+            pdf.setFontSize(10);
+            const splitText = pdf.splitTextToSize(text, pageWidth - margin * 2);
+            pdf.text(splitText, margin, currentY);
+            currentY += (splitText.length * 5) + 5;
+        }
 
-            pdf.setFont('helvetica', 'bold');
-            pdf.text('Remediation:', margin, currentY + 10);
+        const addList = (items: string[], isFirstItemBold = false) => {
             pdf.setFont('helvetica', 'normal');
-            const splitRemediation = pdf.splitTextToSize(vuln.remediation, pageWidth - margin * 2);
-            pdf.text(splitRemediation, margin, currentY + 17);
-        });
+            pdf.setFontSize(10);
+            items.forEach((item, index) => {
+                if (currentY > pageHeight - margin * 2) {
+                    pdf.addPage();
+                    currentY = 30;
+                }
+                if (index === 1 && isFirstItemBold) { // Make the second item bold
+                    pdf.setFont('helvetica', 'bold');
+                }
+                const splitItem = pdf.splitTextToSize(item, pageWidth - margin * 2 - 5);
+                pdf.text(`•`, margin, currentY);
+                pdf.text(splitItem, margin + 5, currentY);
+                currentY += (splitItem.length * 5) + 2;
+                if (index === 1 && isFirstItemBold) {
+                    pdf.setFont('helvetica', 'normal'); // Reset font
+                }
+            });
+            currentY += 5;
+        }
 
+        addSection('Disclaimer', 'VigilanteAI is a cybersecurity research and educational tool designed to assist users in identifying potential vulnerabilities on systems they own or have explicit authorization to test. It is intended solely for lawful and ethical use in compliance with applicable cybersecurity and data protection laws.');
+
+        addSection('Notice of Authorized Use', 'By using VigilanteAI, you acknowledge and agree that:');
+        currentY -= 5;
+        addList([
+            'You will only scan systems, websites, or networks that you personally own or for which you have explicit, written consent from the owner.',
+            'You understand that unauthorized vulnerability scanning, penetration testing, or exploitation of third-party systems may violate laws such as the Indian IT Act 2000, the Computer Misuse Act, or other regional cybersecurity regulations.',
+            'The developers, contributors, and maintainers of VigilanteAI assume no liability for misuse, damages, or legal consequences arising from unauthorized or unethical use of this software.'
+        ], true);
+        
+        pdf.setFontSize(10);
+        const purposeText = 'This tool should be used for defensive and educational cybersecurity purposes only, such as:';
+        const splitPurpose = pdf.splitTextToSize(purposeText, pageWidth - margin * 2);
+        pdf.text(splitPurpose, margin, currentY);
+        currentY += (splitPurpose.length * 5) + 5;
+        addList(['Security auditing of authorized assets', 'Academic research and learning', 'Internal organization security assessments']);
+
+        addSection('Warning', 'Engaging in unauthorized scanning or data probing activities on systems without permission is illegal and may lead to civil or criminal penalties. Always obtain proper authorization before running any scan.');
+        addSection('Ethical Usage', 'VigilanteAI supports responsible disclosure practices. If vulnerabilities are discovered, users are encouraged to notify affected parties responsibly and in good faith.');
 
         // Add footers to all pages
         addFooters(pdf);
@@ -266,3 +337,5 @@ export function ReportHeader({ scan }: { scan: Scan }) {
     </div>
   );
 }
+
+    
