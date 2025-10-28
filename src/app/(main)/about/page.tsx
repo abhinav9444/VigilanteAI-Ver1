@@ -16,8 +16,50 @@ import {
   Link as LinkIcon,
   Heart,
   AlertTriangle,
+  Database,
+  BrainCircuit,
+  Wind,
 } from 'lucide-react';
 import { teamMembers, projectGuide } from '@/lib/about-data';
+import type { SVGProps } from 'react';
+
+const techStack = [
+  {
+    name: 'Next.js & React',
+    description: 'For a high-performance, server-rendered user interface.',
+    icon: (props: SVGProps<SVGSVGElement>) => (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 128 128"
+        fill="none"
+      >
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M64 128C99.3462 128 128 99.3462 128 64C128 28.6538 99.3462 0 64 0C28.6538 0 0 28.6538 0 64C0 99.3462 28.6538 128 64 128ZM40.1583 110.835C45.286 113.843 51.2584 115.733 57.6533 116.321V78.3598L40.1583 110.835ZM101.442 90.9576L112.164 72.8227H90.9327L101.442 90.9576ZM90.2312 65.3113H110.388C108.973 52.3968 102.54 41.2335 93.1097 33.7279L90.2312 38.83V65.3113ZM34.7203 27.5752C42.2478 20.1903 52.3781 15.3114 63.5413 14.072V68.558L34.7203 27.5752ZM69.3788 14.156C80.4613 15.498 90.4423 20.5283 97.9181 28.181L69.3788 72.7758V14.156Z"
+          fill="currentColor"
+        />
+      </svg>
+    ),
+  },
+  {
+    name: 'Firebase',
+    description: 'For secure authentication, real-time database, and hosting.',
+    icon: Database,
+  },
+  {
+    name: 'Genkit & Gemini',
+    description: 'For AI-powered vulnerability analysis and summarization.',
+    icon: BrainCircuit,
+  },
+  {
+    name: 'Tailwind CSS',
+    description: 'For modern, utility-first styling and rapid UI development.',
+    icon: Wind,
+  },
+];
+
 
 export default function AboutPage() {
   return (
@@ -72,6 +114,28 @@ export default function AboutPage() {
           </div>
         </CardContent>
       </Card>
+      
+      <Separator />
+
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight">Technology Stack</h2>
+         <p className="text-muted-foreground mt-1">Powered by modern technologies and AI-driven intelligence.</p>
+        <div className="grid gap-6 mt-4 md:grid-cols-2 lg:grid-cols-4">
+          {techStack.map((tech) => (
+            <Card key={tech.name} className="flex flex-col">
+              <CardHeader className="items-center text-center">
+                <div className="p-4 bg-accent/10 rounded-full mb-4 border border-accent/20">
+                   <tech.icon className="h-10 w-10 text-accent" />
+                </div>
+                <CardTitle className="text-lg">{tech.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center text-sm text-muted-foreground flex-grow">
+                {tech.description}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
 
       <Separator />
 
