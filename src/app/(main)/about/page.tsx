@@ -18,18 +18,32 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { teamMembers, projectGuide } from '@/lib/about-data';
-import { TechLogos } from '@/components/tech-logos';
 
 const techStack = [
-  { name: 'Next.js', Icon: TechLogos.Nextjs },
-  { name: 'React', Icon: TechLogos.React },
-  { name: 'Firebase', Icon: TechLogos.Firebase },
-  { name: 'Genkit', Icon: TechLogos.Genkit },
-  { name: 'Gemini', Icon: TechLogos.Gemini },
-  { name: 'Tailwind CSS', Icon: TechLogos.Tailwind },
-  { name: 'VirusTotal', Icon: TechLogos.VirusTotal },
-  { name: 'Shodan', Icon: TechLogos.Shodan },
-  { name: 'WHOIS', Icon: TechLogos.Whois },
+  { 
+    name: 'Next.js & React', 
+    description: 'For building a modern, server-rendered React application with an optimized user experience.' 
+  },
+  { 
+    name: 'Firebase', 
+    description: 'Used for backend services, including Authentication for user management and Firestore for data storage.' 
+  },
+  { 
+    name: 'Genkit & Gemini', 
+    description: 'Powers the AI-driven features, including vulnerability analysis, summarization, and remediation suggestions.' 
+  },
+  { 
+    name: 'Tailwind CSS & ShadCN UI', 
+    description: 'For creating a responsive and aesthetically pleasing user interface with a comprehensive component library.' 
+  },
+  { 
+    name: 'OSINT APIs', 
+    description: 'Integrates with VirusTotal, Shodan, WHOIS, and SSLMate for comprehensive threat intelligence gathering.' 
+  },
+  {
+    name: 'TypeScript',
+    description: 'Ensures type safety and improves code quality and maintainability across the project.'
+  }
 ];
 
 
@@ -92,12 +106,14 @@ export default function AboutPage() {
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Technology Stack</h2>
          <p className="text-muted-foreground mt-1">Powered by modern technologies and AI-driven intelligence.</p>
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {techStack.map((tech, index) => (
-                <Card key={index} className="transition-all hover:shadow-md hover:-translate-y-1">
-                    <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
-                    <tech.Icon className="h-16 w-16 text-foreground" />
-                    <span className="text-md font-semibold mt-4 text-center">{tech.name}</span>
+                <Card key={index} className="transition-all hover:shadow-md">
+                    <CardHeader>
+                        <CardTitle className='text-xl'>{tech.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground">{tech.description}</p>
                     </CardContent>
                 </Card>
             ))}
@@ -304,5 +320,3 @@ export default function AboutPage() {
     </div>
   );
 }
-
-    
