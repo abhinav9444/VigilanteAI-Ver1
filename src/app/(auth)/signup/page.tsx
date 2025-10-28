@@ -107,7 +107,7 @@ export default function SignupPage() {
   }
 
   return (
-    <Card className="mx-auto w-full max-w-sm border-0 bg-transparent shadow-none lg:border lg:bg-card lg:shadow-sm">
+    <Card className="mx-auto w-full max-w-sm">
       <CardHeader>
         <CardTitle className="text-xl">Sign Up</CardTitle>
         <CardDescription>
