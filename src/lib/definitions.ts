@@ -12,9 +12,9 @@ export type Vulnerability = {
   name: string;
   description: string;
   severity: 'Critical' | 'High' | 'Medium' | 'Low';
-  cwe: string;
+  cwe?: string;
   remediation: string;
-  evidence: string;
+  evidence?: string;
   assessedSeverity?: 'Critical' | 'High' | 'Medium' | 'Low';
   assessmentJustification?: string;
 };

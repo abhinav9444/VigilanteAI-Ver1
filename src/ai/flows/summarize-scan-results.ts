@@ -16,7 +16,7 @@ const SummarizeScanResultsInputSchema = z.object({
 export type SummarizeScanResultsInput = z.infer<typeof SummarizeScanResultsInputSchema>;
 
 const SummarizeScanResultsOutputSchema = z.object({
-  summary: z.string().describe('A concise summary of the scan results, highlighting critical vulnerabilities and their potential impact.'),
+  summary: z.string().describe('A concise summary of the scan results, formatted as a JSON array of vulnerability objects. Each object should include name, description, severity, cwe, and remediation.'),
 });
 export type SummarizeScanResultsOutput = z.infer<typeof SummarizeScanResultsOutputSchema>;
 
@@ -28,12 +28,12 @@ const summarizeScanResultsPrompt = ai.definePrompt({
   name: 'summarizeScanResultsPrompt',
   input: {schema: SummarizeScanResultsInputSchema},
   output: {schema: SummarizeScanResultsOutputSchema},
-  prompt: `You are an AI-powered security analyst. Your task is to analyze the output of a web vulnerability scan and provide a concise summary of the findings.
+  prompt: `You are an AI-powered security analyst. Your task is to analyze the output of a web vulnerability scan and provide a summary of the findings as a JSON array.
 
-  Prioritize critical vulnerabilities and explain their potential impact on the website.
+  Convert the raw scan alerts into a structured JSON array of vulnerability objects. Each object must contain the following fields: 'name', 'description', 'severity' (one of 'Critical', 'High', 'Medium', 'Low'), 'cwe', and 'remediation'.
 
   Here is the scan output:
-  {{scanOutput}}
+  {{{scanOutput}}}
   `,
 });
 

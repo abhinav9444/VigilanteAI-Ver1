@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -18,8 +19,8 @@ import { useRouter } from 'next/navigation';
 import { ScrollArea } from '../ui/scroll-area';
 import { useUser, useFirestore } from '@/firebase';
 import { addDoc, collection, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
-import { MOCK_VULNERABILITIES } from '@/lib/mock-data';
 import { assessVulnerability } from '@/ai/flows/assess-vulnerability';
+import { summarizeScanResults } from '@/ai/flows/summarize-scan-results';
 import type { Vulnerability } from '@/lib/definitions';
 
 const SCAN_LOGS = [
@@ -31,9 +32,44 @@ const SCAN_LOGS = [
   'Checking for insecure headers...',
   'Analyzing robots.txt and sitemap.xml...',
   'Compiling results...',
+  'Running AI-powered vulnerability generation...',
   'Running AI-powered severity assessment...',
   'Scan complete. Redirecting...',
 ];
+
+// This simulates the raw output you might get from a tool like ZAP or Nikto
+const SIMULATED_RAW_SCAN_OUTPUT = `
+{
+  "site": "https://example.com",
+  "alerts": [
+    {
+      "pluginid": "10021",
+      "alert": "X-Content-Type-Options Header Missing",
+      "name": "X-Content-Type-Options Header Missing",
+      "risk": "Low",
+      "description": "The X-Content-Type-Options header is not set. This could allow an attacker to perform MIME-sniffing attacks.",
+      "solution": "Ensure that the X-Content-Type-Options header is set to 'nosniff' for all responses."
+    },
+    {
+      "pluginid": "40012",
+      "alert": "Cross-Domain JavaScript Source File Inclusion",
+      "name": "Cross-Domain JavaScript Source File Inclusion",
+      "risk": "Medium",
+      "description": "The page includes a script from a third-party domain. This could expose the site to security risks if the third-party domain is compromised.",
+      "solution": "Host all JavaScript files on the same domain as the application."
+    },
+    {
+      "pluginid": "90022",
+      "alert": "Application Error Disclosure",
+      "name": "Application Error Disclosure",
+      "risk": "Medium",
+      "description": "The application may be leaking error messages or stack traces. This can reveal sensitive information about the application's internals.",
+      "solution": "Configure the application to show generic error pages instead of detailed error messages."
+    }
+  ]
+}
+`;
+
 
 export function ScanForm() {
   const router = useRouter();
@@ -109,21 +145,24 @@ export function ScanForm() {
         },
       });
 
-      // 2. Simulate the scan process to find vulnerabilities
+      // 2. Simulate the scan process and use AI to generate vulnerabilities
       const totalScanDelay = 13000;
-      const scanSteps = SCAN_LOGS.length - 2;
+      const scanSteps = SCAN_LOGS.length - 3; // a few steps before AI generation
       const delayPerScanStep = totalScanDelay / scanSteps;
 
       for (let i = 0; i < scanSteps; i++) {
         await new Promise((resolve) => setTimeout(resolve, delayPerScanStep));
       }
       
-      const foundVulnerabilities = MOCK_VULNERABILITIES.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * 4) + 2);
+      const summaryResult = await summarizeScanResults({ scanOutput: SIMULATED_RAW_SCAN_OUTPUT });
+      // The summary in this case is expected to be a JSON array of vulnerabilities
+      const foundVulnerabilities: Omit<Vulnerability, 'id'>[] = JSON.parse(summaryResult.summary);
+
 
       // 3. Run AI severity assessment
       await new Promise((resolve) => setTimeout(resolve, 1500));
       const assessedVulnerabilities = await Promise.all(
-        foundVulnerabilities.map(async (vuln): Promise<Vulnerability> => {
+        foundVulnerabilities.map(async (vuln, index): Promise<Vulnerability> => {
           try {
             const assessment = await assessVulnerability({
               vulnerability: JSON.stringify(vuln),
@@ -131,13 +170,14 @@ export function ScanForm() {
             });
             return {
               ...vuln,
+              id: `vuln-${scanDocRef.id}-${index}`,
               assessedSeverity: assessment.assessedSeverity,
               assessmentJustification: assessment.assessmentJustification,
             };
           } catch (e) {
             console.error("Could not assess vulnerability", e);
             // If AI assessment fails, return the original vulnerability
-            return vuln;
+            return { ...vuln, id: `vuln-${scanDocRef.id}-${index}`};
           }
         })
       );
@@ -233,7 +273,7 @@ export function ScanForm() {
                   <div className="text-sm">
                     {logs.map((log, index) => (
                        <p key={index} className="animate-in fade-in flex items-center gap-2">
-                        {log.includes('AI-powered') && <Sparkles className="h-4 w-4 text-primary" />}
+                        {(log.includes('AI-powered') || log.includes('generation')) && <Sparkles className="h-4 w-4 text-primary" />}
                         <span>{`> ${log}`}</span>
                       </p>
                     ))}
