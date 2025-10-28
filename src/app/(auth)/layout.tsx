@@ -83,12 +83,12 @@ export default function AuthLayout({
               <VigilanteAiLogo className="h-8 w-8" />
               VigilanteAI
             </div>
-            <p className="text-sm text-muted-foreground max-w-prose">
+            <p className="text-base text-muted-foreground max-w-prose">
               VigilanteAI is an AI-assisted web vulnerability scanner that helps
               users analyze websites for basic security issues and gather
               useful information through integrated OSINT and scanning tools.
             </p>
-             <div className="text-xs text-muted-foreground pt-2">
+             <div className="text-sm text-muted-foreground pt-2">
               <p>Major Project-1</p>
               <p>B.Tech Computer Science and Engineering - 2022 Batch</p>
             </div>
