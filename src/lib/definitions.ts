@@ -55,11 +55,28 @@ const virusTotalInfoSchema = z.object({
   }),
   reputation: z.number(),
   last_modification_date: z.number(),
-  whois: z.string().optional(),
 });
+
+// Schema for WHOIS Information
+const whoisInfoSchema = z.object({
+    domainName: z.string().optional(),
+    registrarName: z.string().optional(),
+    createdDate: z.string().optional(),
+    expiresDate: z.string().optional(),
+    updatedDate: z.string().optional(),
+    registrant: z.object({
+        name: z.string().optional(),
+        organization: z.string().optional(),
+        country: z.string().optional(),
+    }).optional(),
+    nameServers: z.object({
+        hostNames: z.array(z.string()).optional(),
+    }).optional(),
+}).optional();
 
 
 export const OsintEnrichmentOutputSchema = z.object({
     virusTotal: virusTotalInfoSchema.optional().describe('VirusTotal analysis results.'),
+    whois: whoisInfoSchema.optional().describe('WHOIS information.'),
 });
 export type OsintEnrichmentOutput = z.infer<typeof OsintEnrichmentOutputSchema>;

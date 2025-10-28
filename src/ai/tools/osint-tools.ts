@@ -5,8 +5,8 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-// Schema for VirusTotal Information
-const virusTotalInfoSchema = z.object({
+// Schema for VirusTotal Information (used as output for the tool)
+const virusTotalToolOutputSchema = z.object({
   last_analysis_stats: z.object({
     harmless: z.number(),
     malicious: z.number(),
@@ -16,7 +16,6 @@ const virusTotalInfoSchema = z.object({
   }),
   reputation: z.number(),
   last_modification_date: z.number(),
-  whois: z.string().optional(),
 });
 
 export const getVirusTotalInfo = ai.defineTool(
@@ -26,32 +25,77 @@ export const getVirusTotalInfo = ai.defineTool(
     inputSchema: z.object({
       domain: z.string().describe('The domain name to query.'),
     }),
-    outputSchema: virusTotalInfoSchema,
+    outputSchema: virusTotalToolOutputSchema,
   },
   async (input) => {
     const apiKey = process.env.VIRUSTOTAL_API_KEY;
     if (!apiKey) {
-      throw new Error('VirusTotal API key is not configured.');
+      console.warn('VirusTotal API key is not configured. Returning mock data.');
+      // Return mock data if API key is missing
+      return {
+        last_analysis_stats: { harmless: 70, malicious: 0, suspicious: 0, undetected: 10, timeout: 0 },
+        reputation: 0,
+        last_modification_date: Math.floor(Date.now() / 1000) - 86400,
+      };
     }
     
-    // As a prototype, we'll return mock data that matches the schema
-    console.log(`[OSINT Tool] Fetching VirusTotal data for: ${input.domain}`);
-    
-    // This is where you would make a real API call to VirusTotal
-    // For now, we return mock data to simulate the API response.
-    const mockData = {
-        last_analysis_stats: {
-            harmless: Math.floor(Math.random() * 70) + 10,
-            malicious: Math.floor(Math.random() * 3),
-            suspicious: Math.floor(Math.random() * 2),
-            undetected: Math.floor(Math.random() * 5),
-            timeout: 0,
-        },
-        reputation: Math.floor(Math.random() * 100) - 50,
-        last_modification_date: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 30 * 24 * 60 * 60),
-        whois: `Domain Name: ${input.domain}\nRegistrar: Mock Registrar Inc.\nCreation Date: 2022-01-01T12:00:00Z`
+    const url = `https://www.virustotal.com/api/v3/domains/${input.domain}`;
+    const options = {
+      method: 'GET',
+      headers: {
+        'x-apikey': apiKey,
+      },
     };
 
-    return mockData;
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        console.error(`VirusTotal API error: ${response.statusText}`);
+        throw new Error('Failed to fetch from VirusTotal');
+      }
+      const data = await response.json();
+      return data.data.attributes;
+    } catch (error) {
+      console.error('Error calling VirusTotal API:', error);
+      throw error;
+    }
   }
+);
+
+
+const whoisToolOutputSchema = z.object({
+    WhoisRecord: z.any()
+});
+
+export const getWhoisInfo = ai.defineTool(
+    {
+        name: 'getWhoisInfo',
+        description: 'Retrieves WHOIS information for a domain.',
+        inputSchema: z.object({
+            domain: z.string().describe('The domain name to query.'),
+        }),
+        outputSchema: whoisToolOutputSchema,
+    },
+    async (input) => {
+        const apiKey = process.env.WHOISXML_API_KEY;
+        if (!apiKey) {
+            console.warn('WHOISXML API key not configured.');
+            return { WhoisRecord: { error: 'API key not configured.' } };
+        }
+
+        const url = `https://www.whoisxmlapi.com/whoisserver/WhoisService?apiKey=${apiKey}&domainName=${input.domain}&outputFormat=JSON`;
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                console.error(`WHOISXML API error: ${response.statusText}`);
+                throw new Error('Failed to fetch from WHOISXML API');
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error calling WHOISXML API:', error);
+            throw error;
+        }
+    }
 );

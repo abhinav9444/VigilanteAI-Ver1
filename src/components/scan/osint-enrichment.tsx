@@ -15,6 +15,10 @@ import {
   Globe,
   Server,
   ShieldQuestion,
+  BookUser,
+  Calendar,
+  Contact,
+  Building
 } from 'lucide-react';
 import { enrichScanWithOsint } from '@/ai/flows/osint-enrichment';
 import { OsintEnrichmentOutput } from '@/lib/definitions';
@@ -42,8 +46,7 @@ function InfoRow({
         {value && <p className="text-sm text-muted-foreground">{value}</p>}
         {children && <div className="text-sm text-muted-foreground">{children}</div>}
       </div>
-    </div>
-  );
+    );
 }
 
 function OsintSkeleton() {
@@ -67,6 +70,8 @@ function OsintSkeleton() {
                 </CardHeader>
                 <CardContent className='space-y-2'>
                     <Skeleton className="h-20 w-full" />
+                     <Skeleton className="h-10 w-full" />
+                     <Skeleton className="h-10 w-full" />
                 </CardContent>
             </Card>
         </div>
@@ -115,6 +120,8 @@ export function OsintEnrichment({ url }: { url: string }) {
     ? new Date(data.virusTotal.last_modification_date * 1000).toLocaleDateString()
     : 'N/A';
 
+  const whoisRecord = data?.whois;
+
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <Card>
@@ -148,13 +155,20 @@ export function OsintEnrichment({ url }: { url: string }) {
       </Card>
       <Card>
         <CardHeader>
-            <CardTitle>WHOIS Information</CardTitle>
+            <CardTitle className='flex items-center gap-2'><BookUser /> WHOIS Information</CardTitle>
+            <CardDescription>Domain registration and contact details.</CardDescription>
         </CardHeader>
-        <CardContent>
-            {data?.virusTotal?.whois ? (
-                <pre className='whitespace-pre-wrap font-mono text-xs bg-muted p-4 rounded-md'>
-                    {data.virusTotal.whois}
-                </pre>
+        <CardContent className="space-y-4">
+            {whoisRecord ? (
+                <>
+                 <InfoRow icon={Server} label="Registrar" value={whoisRecord.registrarName || 'N/A'} />
+                 <Separator />
+                 <InfoRow icon={Calendar} label="Creation Date" value={whoisRecord.createdDate ? new Date(whoisRecord.createdDate).toLocaleDateString() : 'N/A'} />
+                 <Separator />
+                 <InfoRow icon={Calendar} label="Expiration Date" value={whoisRecord.expiresDate ? new Date(whoisRecord.expiresDate).toLocaleDateString() : 'N/A'} />
+                 <Separator />
+                 <InfoRow icon={Building} label="Registrant" value={whoisRecord.registrant?.organization || whoisRecord.registrant?.name || 'N/A'} />
+                </>
             ): (
                  <p className='text-sm text-muted-foreground'>No WHOIS data available.</p>
             )}

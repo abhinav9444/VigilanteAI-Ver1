@@ -7,7 +7,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { getVirusTotalInfo } from '../tools/osint-tools';
+import { getVirusTotalInfo, getWhoisInfo } from '../tools/osint-tools';
 import { OsintEnrichmentInputSchema, OsintEnrichmentOutput, OsintEnrichmentOutputSchema, OsintEnrichmentInput } from '@/lib/definitions';
 
 
@@ -24,9 +24,14 @@ const osintEnrichmentFlow = ai.defineFlow(
   async (input) => {
     
     try {
-        const virusTotalData = await getVirusTotalInfo({ domain: new URL(input.url).hostname });
+        const [virusTotalData, whoisData] = await Promise.all([
+            getVirusTotalInfo({ domain: new URL(input.url).hostname }),
+            getWhoisInfo({ domain: new URL(input.url).hostname })
+        ]);
+
         return {
           virusTotal: virusTotalData,
+          whois: whoisData?.WhoisRecord
         };
     } catch (error) {
         console.error("Failed to run OSINT enrichment flow", error);
