@@ -16,7 +16,8 @@ import {
   Server,
   ShieldQuestion,
 } from 'lucide-react';
-import { enrichScanWithOsint, OsintEnrichmentOutput } from '@/ai/flows/osint-enrichment';
+import { enrichScanWithOsint } from '@/ai/flows/osint-enrichment';
+import { OsintEnrichmentOutput } from '@/lib/definitions';
 import { Skeleton } from '../ui/skeleton';
 import { Separator } from '../ui/separator';
 
