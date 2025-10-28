@@ -40,7 +40,7 @@ const quotes = [
   },
 ];
 
-const contributors = ['22051564', '22053293', '22053284', '22053613', '22052323'];
+const contributors = ['22051564', '22053293', '22053284', '22052323'];
 
 export default function AuthLayout({
   children,

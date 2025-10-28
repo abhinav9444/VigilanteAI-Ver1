@@ -34,12 +34,6 @@ export const teamMembers: TeamMember[] = [
     imageUrl: 'https://picsum.photos/seed/dev3/200/200',
   },
    {
-    name: 'Ayush Kumar',
-    rollNumber: '22053613',
-    linkedin: 'https://www.linkedin.com/',
-    imageUrl: 'https://picsum.photos/seed/dev4/200/200',
-  },
-   {
     name: 'Yash Vardhan',
     rollNumber: '22052323',
     linkedin: 'https://www.linkedin.com/',
