@@ -1,3 +1,4 @@
+
 'use client';
 
 import { VigilanteAiLogo } from '@/components/logo';
@@ -25,7 +26,7 @@ const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/history', icon: FileClock, label: 'Scan History' },
   { href: '/settings', icon: Settings, label: 'Settings' },
-  { href: '/about', icon: Info, label: 'About Us' },
+  { href: '/about', icon: Info, label: 'Project Overview' },
 ];
 
 export default function MainLayout({
