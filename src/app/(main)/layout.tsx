@@ -1,7 +1,6 @@
 
 'use client';
 
-import { VigilanteAiLogo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { UserNav } from '@/components/user-nav';
 import { cn } from '@/lib/utils';
