@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Scan, Vulnerability } from '@/lib/definitions';
-import { summarizeScanResults } from '@/ai/flows/summarize-scan-results';
+import { getScanSummary } from '@/ai/flows/get-scan-summary';
 import { useEffect, useState, useMemo } from 'react';
 import {
   ChartContainer,
@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import {
-  AlertCircle,
   ShieldAlert,
   ShieldCheck,
   ShieldHalf,
@@ -55,29 +54,24 @@ export function ScanSummary({ scan }: ScanSummaryProps) {
   const vulnerabilities = scan.vulnerabilities || [];
 
   useEffect(() => {
-    async function getSummary() {
+    async function generateSummary() {
       if (vulnerabilities.length > 0) {
         setIsLoading(true);
         try {
-          // The AI flow now generates a summary based on the target URL, not the list of vulnerabilities.
-          const result = await summarizeScanResults({ targetUrl: scan.url });
-          // The result.summary is now expected to be a JSON string of vulnerabilities,
-          // but for the summary component, we might want a different kind of summary.
-          // For now, let's just show a static message as the summary logic has changed.
-          // In a real scenario, we might have a different flow for post-scan summarization.
-          setSummary("An AI-powered summary of the scan's findings, highlighting the most critical issues and overall security posture.");
+          const result = await getScanSummary({ scanDetails: JSON.stringify(scan) });
+          setSummary(result.summary);
         } catch (error) {
           console.error('Failed to get AI summary:', error);
           setSummary('Could not load AI-powered summary.');
         }
         setIsLoading(false);
       } else {
-        setSummary('No vulnerabilities were found during this scan.');
+        setSummary('No vulnerabilities were found during this scan, indicating a strong security posture for the analyzed target.');
         setIsLoading(false);
       }
     }
-    getSummary();
-  }, [vulnerabilities, scan.url]);
+    generateSummary();
+  }, [scan, vulnerabilities]);
 
   const severityCounts = useMemo(() => {
     return vulnerabilities.reduce((acc, vuln) => {
