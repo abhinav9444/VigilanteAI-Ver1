@@ -98,7 +98,7 @@ export default function HistoryPage() {
                       {scan.status}
                     </Badge>
                   </TableCell>
-                  <TableCell>{scan.vulnerabilities.length}</TableCell>
+                  <TableCell>{scan.vulnerabilities?.length || 0}</TableCell>
                   <TableCell className="hidden md:table-cell">
                     {formatDate(scan.createdAt)}
                   </TableCell>

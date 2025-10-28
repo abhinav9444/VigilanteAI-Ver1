@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Rocket, Loader2, AlertCircle } from 'lucide-react';
+import { Rocket, Loader2, AlertCircle, Sparkles } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useEffect, useState, useRef, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
@@ -19,6 +19,8 @@ import { ScrollArea } from '../ui/scroll-area';
 import { useUser, useFirestore } from '@/firebase';
 import { addDoc, collection, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
 import { MOCK_VULNERABILITIES } from '@/lib/mock-data';
+import { assessVulnerability } from '@/ai/flows/assess-vulnerability';
+import type { Vulnerability } from '@/lib/definitions';
 
 const SCAN_LOGS = [
   'Target confirmed. Initializing scanners...',
@@ -29,6 +31,7 @@ const SCAN_LOGS = [
   'Checking for insecure headers...',
   'Analyzing robots.txt and sitemap.xml...',
   'Compiling results...',
+  'Running AI-powered severity assessment...',
   'Scan complete. Redirecting...',
 ];
 
@@ -99,24 +102,49 @@ export function ScanForm() {
         vulnerabilities: [],
       });
 
-      // 2. Simulate the scan process
-      const totalDelay = 15000;
-      const steps = SCAN_LOGS.length;
-      const delayPerStep = totalDelay / steps;
+      // 2. Simulate the scan process to find vulnerabilities
+      const totalScanDelay = 13000;
+      const scanSteps = SCAN_LOGS.length - 2;
+      const delayPerScanStep = totalScanDelay / scanSteps;
 
-      for (let i = 0; i < steps; i++) {
-        await new Promise((resolve) => setTimeout(resolve, delayPerStep));
+      for (let i = 0; i < scanSteps; i++) {
+        await new Promise((resolve) => setTimeout(resolve, delayPerScanStep));
       }
       
-      // 3. Update the document with the final results
+      const foundVulnerabilities = MOCK_VULNERABILITIES.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * 4) + 2);
+
+      // 3. Run AI severity assessment
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const assessedVulnerabilities = await Promise.all(
+        foundVulnerabilities.map(async (vuln): Promise<Vulnerability> => {
+          try {
+            const assessment = await assessVulnerability({
+              vulnerability: JSON.stringify(vuln),
+              context: `The vulnerability was found on the ${url} website.`
+            });
+            return {
+              ...vuln,
+              assessedSeverity: assessment.assessedSeverity,
+              assessmentJustification: assessment.assessmentJustification,
+            };
+          } catch (e) {
+            console.error("Could not assess vulnerability", e);
+            // If AI assessment fails, return the original vulnerability
+            return vuln;
+          }
+        })
+      );
+      
+      // 4. Update the document with the final results
       await updateDoc(doc(firestore, 'users', user.uid, 'scans', scanDocRef.id), {
         status: 'Completed',
         completedAt: serverTimestamp(),
-        vulnerabilities: MOCK_VULNERABILITIES.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * MOCK_VULNERABILITIES.length) + 1),
+        vulnerabilities: assessedVulnerabilities,
       });
 
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // 4. Redirect to the results page
+      // 5. Redirect to the results page
       router.push(`/scan/${scanDocRef.id}`);
 
     } catch (err: any) {
@@ -197,7 +225,10 @@ export function ScanForm() {
                 <ScrollArea className="h-48">
                   <div className="text-sm">
                     {logs.map((log, index) => (
-                      <p key={index} className="animate-in fade-in">{`> ${log}`}</p>
+                       <p key={index} className="animate-in fade-in flex items-center gap-2">
+                        {log.includes('AI-powered') && <Sparkles className="h-4 w-4 text-primary" />}
+                        <span>{`> ${log}`}</span>
+                      </p>
                     ))}
                   </div>
                 </ScrollArea>

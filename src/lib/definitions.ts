@@ -8,6 +8,8 @@ export type Vulnerability = {
   cwe: string;
   remediation: string;
   evidence: string;
+  assessedSeverity?: 'Critical' | 'High' | 'Medium' | 'Low';
+  assessmentJustification?: string;
 };
 
 export type Scan = {

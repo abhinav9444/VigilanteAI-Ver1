@@ -52,13 +52,14 @@ const chartConfig = {
 export function ScanSummary({ scan }: ScanSummaryProps) {
   const [summary, setSummary] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const vulnerabilities = scan.vulnerabilities || [];
 
   useEffect(() => {
     async function getSummary() {
-      if (scan.vulnerabilities.length > 0) {
+      if (vulnerabilities.length > 0) {
         setIsLoading(true);
         try {
-          const scanOutput = JSON.stringify(scan.vulnerabilities);
+          const scanOutput = JSON.stringify(vulnerabilities);
           const result = await summarizeScanResults({ scanOutput });
           setSummary(result.summary);
         } catch (error) {
@@ -72,14 +73,15 @@ export function ScanSummary({ scan }: ScanSummaryProps) {
       }
     }
     getSummary();
-  }, [scan]);
+  }, [vulnerabilities]);
 
   const severityCounts = useMemo(() => {
-    return scan.vulnerabilities.reduce((acc, vuln) => {
-      acc[vuln.severity] = (acc[vuln.severity] || 0) + 1;
+    return vulnerabilities.reduce((acc, vuln) => {
+      const severity = vuln.assessedSeverity || vuln.severity;
+      acc[severity] = (acc[severity] || 0) + 1;
       return acc;
     }, {} as Record<Vulnerability['severity'], number>);
-  }, [scan.vulnerabilities]);
+  }, [vulnerabilities]);
 
   const chartData = Object.entries(severityCounts).map(([name, value]) => ({
     name,
@@ -113,7 +115,7 @@ export function ScanSummary({ scan }: ScanSummaryProps) {
           <CardTitle>Severity Breakdown</CardTitle>
         </CardHeader>
         <CardContent className="flex-1 pb-0">
-          {scan.vulnerabilities.length > 0 ? (
+          {vulnerabilities.length > 0 ? (
             <ChartContainer
               config={chartConfig}
               className="mx-auto aspect-square max-h-[250px]"

@@ -48,16 +48,16 @@ export default function ScanPage({ params }: { params: { id: string } }) {
   const vulnerabilities = scan.vulnerabilities || [];
 
   const criticalCount = vulnerabilities.filter(
-    (v) => v.severity === 'Critical'
+    (v) => (v.assessedSeverity || v.severity) === 'Critical'
   ).length;
   const highCount = vulnerabilities.filter(
-    (v) => v.severity === 'High'
+    (v) => (v.assessedSeverity || v.severity) === 'High'
   ).length;
   const mediumCount = vulnerabilities.filter(
-    (v) => v.severity === 'Medium'
+    (v) => (v.assessedSeverity || v.severity) === 'Medium'
   ).length;
   const lowCount = vulnerabilities.filter(
-    (v) => v.severity === 'Low'
+    (v) => (v.assessedSeverity || v.severity) === 'Low'
   ).length;
 
   const severityCounts = {
