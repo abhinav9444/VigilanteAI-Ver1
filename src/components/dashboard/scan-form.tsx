@@ -104,7 +104,7 @@ export function ScanForm() {
         vulnerabilities: [],
         chainOfCustody: {
           userId: user.uid,
-          userIp: '127.0.0.1', // MOCKED: In a real app, get this from the request
+          userIp: 'Client-side, IP not available', // IP cannot be reliably determined on the client.
           userAgent: navigator.userAgent,
           timestamp: scanTimestamp,
         },
