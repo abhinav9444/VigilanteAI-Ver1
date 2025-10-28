@@ -249,7 +249,7 @@ export default function AboutPage() {
 
       <footer className="text-center text-muted-foreground py-8">
         <p className="flex items-center justify-center gap-2 text-sm">
-          Crafted with
+          Powered with
           <span className="relative flex h-5 w-5">
             <Heart className="absolute inline-flex h-full w-full animate-ping text-red-400 opacity-75" />
             <Heart className="relative inline-flex h-5 w-5 fill-red-500 text-red-500" />
