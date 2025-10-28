@@ -2,7 +2,7 @@
 'use client';
 
 import { VigilanteAiLogo } from '@/components/logo';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { PlaceHolderImages, ImagePlaceholder } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
@@ -47,9 +47,12 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const authBgImage = PlaceHolderImages.find(
-    (img) => img.id === 'auth-background-1'
+  const authBgImages = PlaceHolderImages.filter((img) =>
+    img.id.startsWith('auth-background-')
   );
+
+  const [currentBgImage, setCurrentBgImage] = useState<ImagePlaceholder | null>(null);
+  const [currentQuote, setCurrentQuote] = useState(quotes[0]);
 
   // Auth pages look best in dark mode
   const { setTheme } = useTheme();
@@ -57,23 +60,26 @@ export default function AuthLayout({
     setTheme('dark');
   }, [setTheme]);
 
-  const [currentQuote, setCurrentQuote] = useState(quotes[0]);
-
   useEffect(() => {
-    // Select a random quote on the client side to avoid hydration mismatch
+    // Select a random image and quote on the client side to avoid hydration mismatch
+    if (authBgImages.length > 0) {
+      setCurrentBgImage(
+        authBgImages[Math.floor(Math.random() * authBgImages.length)]
+      );
+    }
     setCurrentQuote(quotes[Math.floor(Math.random() * quotes.length)]);
-  }, []);
+  }, [authBgImages]);
 
   return (
     <div className="flex min-h-screen w-full">
       <div className="relative hidden w-1/2 lg:block">
-        {authBgImage && (
+        {currentBgImage && (
           <Image
-            src={authBgImage.imageUrl}
-            alt={authBgImage.description}
+            src={currentBgImage.imageUrl}
+            alt={currentBgImage.description}
             fill
             className="object-cover"
-            data-ai-hint={authBgImage.imageHint}
+            data-ai-hint={currentBgImage.imageHint}
             priority
           />
         )}
