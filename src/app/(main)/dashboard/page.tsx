@@ -52,7 +52,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <Alert variant="destructive" className="border-yellow-500/50 text-yellow-500 [&>svg]:text-yellow-500">
+      <Alert variant="destructive" className="border-amber-500/50 text-amber-700 dark:text-yellow-500 dark:border-yellow-500/50 [&>svg]:text-amber-700 dark:[&>svg]:text-yellow-500">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Disclaimer</AlertTitle>
           <AlertDescription>
