@@ -209,7 +209,7 @@ export function ReportHeader({ scan }: { scan: Scan }) {
             addSubSection('WHOIS Information');
             addInfoRow('Registrar:', osintData.whois.registrarName);
             addInfoRow('Created On:', osintData.whois.createdDate ? new Date(osintData.whois.createdDate).toLocaleDateString() : 'N/A');
-            addInfoRow('Expires On:', osintData.whois.expiresDate ? new Date(osintData.whois.expiresDate).toLocaleDateString() : 'NÃ¢â¬â¢A');
+            addInfoRow('Expires On:', osintData.whois.expiresDate ? new Date(osintData.whois.expiresDate).toLocaleDateString() : 'N/A');
             currentY += 5;
         }
         if(osintData.shodan && !osintData.shodan.error) {
@@ -308,23 +308,29 @@ export function ReportHeader({ scan }: { scan: Scan }) {
         // --- Legal Disclaimer Page ---
         pdf.addPage();
         currentY = addSectionTitle('LEGAL DISCLAIMER & NOTICE', 30);
-        
-        const addDisclaimerText = (title: string, content: string | string[]) => {
-            if (currentY > pdf.internal.pageSize.height - 40) {
+
+        const addDisclaimerText = (title: string, content: string | string[], isListItem = false) => {
+            if (currentY > pdf.internal.pageSize.height - 30) {
                 pdf.addPage();
                 currentY = 30;
             }
-            pdf.setFont('helvetica', 'bold');
-            pdf.setFontSize(12);
-            pdf.text(title, margin, currentY);
-            currentY += 7;
+
+            if (title) {
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(12);
+                pdf.text(title, margin, currentY);
+                currentY += 7;
+            }
 
             pdf.setFont('helvetica', 'normal');
             pdf.setFontSize(10);
             const textArray = Array.isArray(content) ? content : [content];
             textArray.forEach(line => {
-                const splitText = pdf.splitTextToSize(line, pageWidth - margin * 2);
-                pdf.text(splitText, margin, currentY);
+                const prefix = isListItem ? '• ' : '';
+                const splitText = pdf.splitTextToSize(line, pageWidth - (margin * 2) - (isListItem ? 5 : 0));
+                pdf.text(splitText, margin + (isListItem ? 5 : 0), currentY, {
+                    charSpace: isListItem ? 1 : 0
+                });
                 currentY += (splitText.length * 4) + 2;
             });
             currentY += 5;
@@ -333,17 +339,20 @@ export function ReportHeader({ scan }: { scan: Scan }) {
         addDisclaimerText('Disclaimer', 'VigilanteAI is a cybersecurity research and educational tool designed to assist users in identifying potential vulnerabilities on systems they own or have explicit authorization to test. It is intended solely for lawful and ethical use in compliance with applicable cybersecurity and data protection laws.');
         
         addDisclaimerText('Notice of Authorized Use', 'By using VigilanteAI, you acknowledge and agree that:');
+        addDisclaimerText('', 'You will only scan systems, websites, or networks that you personally own or for which you have explicit, written consent from the owner.', true);
+        addDisclaimerText('', 'You understand that unauthorized vulnerability scanning, penetration testing, or exploitation of third-party systems may violate laws such as the Indian IT Act 2000, the Computer Misuse Act, or other regional cybersecurity regulations.', true);
+        addDisclaimerText('', 'The developers, contributors, and maintainers of VigilanteAI assume no liability for misuse, damages, or legal consequences arising from unauthorized or unethical use of this software.', true);
         
-        pdf.text("• You will only scan systems, websites, or networks that you personally own or for which you have explicit, written consent from the owner.", margin + 5, currentY);
-        currentY += 8;
-        pdf.text("• You understand that unauthorized vulnerability scanning may violate laws such as the Indian IT Act 2000 or other regional cybersecurity regulations.", margin + 5, currentY);
-        currentY += 8;
-        pdf.text("• The developers, contributors, and maintainers of VigilanteAI assume no liability for misuse, damages, or legal consequences.", margin + 5, currentY);
-        currentY += 10;
+        currentY += 5;
+        addDisclaimerText('', 'This tool should be used for defensive and educational cybersecurity purposes only, such as:');
+        addDisclaimerText('', 'Security auditing of authorized assets', true);
+        addDisclaimerText('', 'Academic research and learning', true);
+        addDisclaimerText('', 'Internal organization security assessments', true);
 
-        addDisclaimerText('Ethical Usage', 'VigilanteAI supports responsible disclosure practices. If vulnerabilities are discovered, users are encouraged to notify affected parties responsibly.');
-        
-        addDisclaimerText('Warning', 'Engaging in unauthorized scanning activities on systems without permission is illegal and may lead to civil or criminal penalties. Always obtain proper authorization before running any scan.');
+        currentY += 5;
+        addDisclaimerText('Warning', 'Engaging in unauthorized scanning or data probing activities on systems without permission is illegal and may lead to civil or criminal penalties. Always obtain proper authorization before running any scan.');
+
+        addDisclaimerText('Ethical Usage', 'VigilanteAI supports responsible disclosure practices. If vulnerabilities are discovered, users are encouraged to notify affected parties responsibly and in good faith.');
 
 
         // Add footers to all pages
