@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -29,7 +30,7 @@ type UserProfile = {
 
 // Helper function for adding footers to PDF
 const addFooters = (pdf: jsPDF) => {
-    const pageCount = pdf.internal.pageSize.getHeight() > 840 ? pdf.internal.pages.length - 1 : pdf.internal.pages.length;
+    const pageCount = pdf.getNumberOfPages();
     pdf.setFont('helvetica', 'italic');
     pdf.setFontSize(8);
     for (let i = 1; i <= pageCount; i++) {
@@ -172,6 +173,10 @@ export function ReportHeader({ scan }: { scan: Scan }) {
         pdf.addPage();
         currentY = addSectionTitle('3. OSINT Enrichment', 30);
         const addSubSection = (title: string) => {
+             if (currentY > pdf.internal.pageSize.height - 25) {
+                pdf.addPage();
+                currentY = 30;
+            }
             pdf.setFontSize(14);
             pdf.setFont('helvetica', 'bold');
             pdf.text(title, margin, currentY);
@@ -204,10 +209,10 @@ export function ReportHeader({ scan }: { scan: Scan }) {
             addSubSection('WHOIS Information');
             addInfoRow('Registrar:', osintData.whois.registrarName);
             addInfoRow('Created On:', osintData.whois.createdDate ? new Date(osintData.whois.createdDate).toLocaleDateString() : 'N/A');
-            addInfoRow('Expires On:', osintData.whois.expiresDate ? new Date(osintData.whois.expiresDate).toLocaleDateString() : 'N/A');
+            addInfoRow('Expires On:', osintData.whois.expiresDate ? new Date(osintData.whois.expiresDate).toLocaleDateString() : 'NÃ¢â¬â¢A');
             currentY += 5;
         }
-        if(osintData.shodan) {
+        if(osintData.shodan && !osintData.shodan.error) {
              addSubSection('Shodan Host Lookup');
              addInfoRow('IP Address:', osintData.shodan.ip_str);
              addInfoRow('Organization:', osintData.shodan.org);
@@ -225,7 +230,7 @@ export function ReportHeader({ scan }: { scan: Scan }) {
                     new Date(c.created_at).toLocaleDateString()
                 ]),
                 theme: 'grid',
-                headStyles: { fillColor: [220, 220, 220], textColor: 20 },
+                headStyles: { fillColor: [220, 220, 220], textColor: 20, fontStyle: 'bold' },
                 didDrawPage: (data) => { currentY = data.cursor?.y || currentY; }
             });
             currentY += 10;
@@ -246,7 +251,7 @@ export function ReportHeader({ scan }: { scan: Scan }) {
                     vuln.cwe || 'N/A',
                 ]),
                 theme: 'striped',
-                headStyles: { fillColor: [30, 144, 255] },
+                headStyles: { fillColor: [30, 144, 255], textColor: 255, fontStyle: 'bold' },
                 didDrawPage: (data) => { currentY = data.cursor?.y || currentY; }
             });
 
@@ -299,6 +304,46 @@ export function ReportHeader({ scan }: { scan: Scan }) {
             addInfoRow('User Agent:', scan.chainOfCustody.userAgent);
             addInfoRow('Timestamp:', formatDate(scan.chainOfCustody.timestamp));
         }
+
+        // --- Legal Disclaimer Page ---
+        pdf.addPage();
+        currentY = addSectionTitle('LEGAL DISCLAIMER & NOTICE', 30);
+        
+        const addDisclaimerText = (title: string, content: string | string[]) => {
+            if (currentY > pdf.internal.pageSize.height - 40) {
+                pdf.addPage();
+                currentY = 30;
+            }
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(12);
+            pdf.text(title, margin, currentY);
+            currentY += 7;
+
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(10);
+            const textArray = Array.isArray(content) ? content : [content];
+            textArray.forEach(line => {
+                const splitText = pdf.splitTextToSize(line, pageWidth - margin * 2);
+                pdf.text(splitText, margin, currentY);
+                currentY += (splitText.length * 4) + 2;
+            });
+            currentY += 5;
+        };
+
+        addDisclaimerText('Disclaimer', 'VigilanteAI is a cybersecurity research and educational tool designed to assist users in identifying potential vulnerabilities on systems they own or have explicit authorization to test. It is intended solely for lawful and ethical use in compliance with applicable cybersecurity and data protection laws.');
+        
+        addDisclaimerText('Notice of Authorized Use', 'By using VigilanteAI, you acknowledge and agree that:');
+        
+        pdf.text("• You will only scan systems, websites, or networks that you personally own or for which you have explicit, written consent from the owner.", margin + 5, currentY);
+        currentY += 8;
+        pdf.text("• You understand that unauthorized vulnerability scanning may violate laws such as the Indian IT Act 2000 or other regional cybersecurity regulations.", margin + 5, currentY);
+        currentY += 8;
+        pdf.text("• The developers, contributors, and maintainers of VigilanteAI assume no liability for misuse, damages, or legal consequences.", margin + 5, currentY);
+        currentY += 10;
+
+        addDisclaimerText('Ethical Usage', 'VigilanteAI supports responsible disclosure practices. If vulnerabilities are discovered, users are encouraged to notify affected parties responsibly.');
+        
+        addDisclaimerText('Warning', 'Engaging in unauthorized scanning activities on systems without permission is illegal and may lead to civil or criminal penalties. Always obtain proper authorization before running any scan.');
 
 
         // Add footers to all pages
@@ -388,5 +433,7 @@ export function ReportHeader({ scan }: { scan: Scan }) {
     </div>
   );
 }
+
+    
 
     
