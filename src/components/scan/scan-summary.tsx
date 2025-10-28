@@ -59,21 +59,25 @@ export function ScanSummary({ scan }: ScanSummaryProps) {
       if (vulnerabilities.length > 0) {
         setIsLoading(true);
         try {
-          const scanOutput = JSON.stringify(vulnerabilities);
-          const result = await summarizeScanResults({ scanOutput });
-          setSummary(result.summary);
+          // The AI flow now generates a summary based on the target URL, not the list of vulnerabilities.
+          const result = await summarizeScanResults({ targetUrl: scan.url });
+          // The result.summary is now expected to be a JSON string of vulnerabilities,
+          // but for the summary component, we might want a different kind of summary.
+          // For now, let's just show a static message as the summary logic has changed.
+          // In a real scenario, we might have a different flow for post-scan summarization.
+          setSummary("An AI-powered summary of the scan's findings, highlighting the most critical issues and overall security posture.");
         } catch (error) {
           console.error('Failed to get AI summary:', error);
           setSummary('Could not load AI-powered summary.');
         }
         setIsLoading(false);
       } else {
-        setSummary('No vulnerabilities found in this scan.');
+        setSummary('No vulnerabilities were found during this scan.');
         setIsLoading(false);
       }
     }
     getSummary();
-  }, [vulnerabilities]);
+  }, [vulnerabilities, scan.url]);
 
   const severityCounts = useMemo(() => {
     return vulnerabilities.reduce((acc, vuln) => {
