@@ -99,9 +99,6 @@ export default function AuthLayout({
               - {currentQuote.author}
             </footer>
           </div>
-           <div className="text-center text-xs text-muted-foreground">
-            <p>Contributors: {contributors.join(' | ')}</p>
-          </div>
         </div>
       </div>
       <div className="flex w-full items-center justify-center bg-background p-4 lg:w-1/2 relative">
@@ -111,6 +108,9 @@ export default function AuthLayout({
             </Button>
         </div>
         {children}
+        <div className="absolute bottom-4 text-center text-xs text-muted-foreground">
+            <p>Contributors: {contributors.join(' | ')}</p>
+        </div>
       </div>
     </div>
   );
