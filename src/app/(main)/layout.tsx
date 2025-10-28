@@ -83,7 +83,6 @@ export default function MainLayout({
               href="/"
               className="flex items-center gap-2 font-semibold"
             >
-              <VigilanteAiLogo className="h-6 w-6 text-primary" />
               <span className="">VigilanteAI</span>
             </Link>
           </div>
@@ -113,8 +112,7 @@ export default function MainLayout({
                   href="#"
                   className="flex items-center gap-2 text-lg font-semibold mb-4"
                 >
-                  <VigilanteAiLogo className="h-6 w-6 text-primary" />
-                  <span className="sr-only">VigilanteAI</span>
+                  <span className="">VigilanteAI</span>
                 </Link>
                 {navContent}
               </nav>
