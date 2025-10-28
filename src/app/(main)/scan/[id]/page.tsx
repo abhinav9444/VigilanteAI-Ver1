@@ -17,6 +17,7 @@ import { ScanSummary } from '@/components/scan/scan-summary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VulnerabilityDetails } from '@/components/scan/vulnerability-details';
 import { AiAssistant } from '@/components/scan/ai-assistant';
+import { OsintEnrichment } from '@/components/scan/osint-enrichment';
 import { Separator } from '@/components/ui/separator';
 import { ReportHeader } from '@/components/scan/report-header';
 import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
@@ -107,9 +108,10 @@ export default function ScanPage({ params }: { params: { id: string } }) {
       </div>
 
       <Tabs defaultValue="summary" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="summary">Summary</TabsTrigger>
           <TabsTrigger value="details">Vulnerability Details</TabsTrigger>
+          <TabsTrigger value="osint">OSINT</TabsTrigger>
           <TabsTrigger value="assistant">AI Assistant</TabsTrigger>
         </TabsList>
         <TabsContent value="summary" className="space-y-4">
@@ -143,6 +145,9 @@ export default function ScanPage({ params }: { params: { id: string } }) {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+        <TabsContent value="osint">
+          <OsintEnrichment url={scan.url} />
         </TabsContent>
         <TabsContent value="assistant">
           <AiAssistant scanDetails={JSON.stringify(scan, null, 2)} />

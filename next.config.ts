@@ -41,6 +41,9 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: [
     'https://6000-firebase-studio-1761573637053.cluster-aic6jbiihrhmyrqafasatvzbwe.cloudworkstations.dev',
   ],
+  env: {
+    VIRUSTOTAL_API_KEY: process.env.VIRUSTOTAL_API_KEY,
+  }
 };
 
 export default nextConfig;
