@@ -11,6 +11,7 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import Fade from "embla-carousel-fade";
 
 export default function AuthLayout({
   children,
@@ -21,9 +22,11 @@ export default function AuthLayout({
     (img) => img.id.startsWith('auth-background')
   );
   
-  const plugin = useRef(
-    Autoplay({ delay: 3000, stopOnInteraction: false, stopOnMouseEnter: true })
+  const autoplay = useRef(
+    Autoplay({ delay: 10000, stopOnInteraction: false, stopOnMouseEnter: true })
   );
+
+  const fade = useRef(Fade());
 
   // Auth pages look best in dark mode
   const { setTheme } = useTheme();
@@ -35,23 +38,25 @@ export default function AuthLayout({
     <div className="flex min-h-screen w-full">
       <div className="relative hidden w-1/2 lg:block">
         <Carousel
-          className="absolute inset-0 w-full h-full"
-          plugins={[plugin.current]}
+          className="absolute inset-0"
+          plugins={[autoplay.current, fade.current]}
           opts={{
             loop: true,
           }}
         >
-          <CarouselContent>
+          <CarouselContent className="m-0 h-full">
             {authBgImages.map((image, index) => (
-              <CarouselItem key={image.id}>
-                <Image
-                  src={image.imageUrl}
-                  alt={image.description}
-                  fill
-                  className="object-cover"
-                  data-ai-hint={image.imageHint}
-                  priority={index === 0}
-                />
+              <CarouselItem key={image.id} className="p-0">
+                <div className="relative h-full w-full">
+                  <Image
+                    src={image.imageUrl}
+                    alt={image.description}
+                    fill
+                    className="object-cover"
+                    data-ai-hint={image.imageHint}
+                    priority={index === 0}
+                  />
+                </div>
               </CarouselItem>
             ))}
           </CarouselContent>
