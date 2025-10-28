@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -46,7 +47,8 @@ function InfoRow({
         {value && <p className="text-sm text-muted-foreground">{value}</p>}
         {children && <div className="text-sm text-muted-foreground">{children}</div>}
       </div>
-    );
+    </div>
+  );
 }
 
 function OsintSkeleton() {
