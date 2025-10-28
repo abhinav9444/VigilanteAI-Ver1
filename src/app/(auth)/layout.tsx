@@ -1,4 +1,3 @@
-
 'use client';
 
 import { VigilanteAiLogo } from '@/components/logo';
@@ -8,6 +7,8 @@ import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+
 
 const quotes = [
   {
@@ -53,6 +54,7 @@ export default function AuthLayout({
 
   const [currentBgImage, setCurrentBgImage] = useState<ImagePlaceholder | null>(null);
   const [currentQuote, setCurrentQuote] = useState(quotes[0]);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   // Auth pages look best in dark mode
   const { setTheme } = useTheme();
@@ -72,14 +74,18 @@ export default function AuthLayout({
 
   return (
     <div className="flex min-h-screen w-full">
-      <div className="relative hidden w-1/2 lg:block">
+      <div className="relative hidden w-1/2 lg:block bg-black">
         {currentBgImage && (
           <Image
             src={currentBgImage.imageUrl}
             alt={currentBgImage.description}
             fill
-            className="object-cover"
+            className={cn(
+                "object-cover transition-opacity duration-1000 ease-in-out",
+                isImageLoaded ? "opacity-100" : "opacity-0"
+            )}
             data-ai-hint={currentBgImage.imageHint}
+            onLoad={() => setIsImageLoaded(true)}
             priority
           />
         )}
