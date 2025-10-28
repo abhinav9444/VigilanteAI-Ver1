@@ -42,7 +42,7 @@ export default function AuthLayout({
           }}
         >
           <CarouselContent>
-            {authBgImages.map((image) => (
+            {authBgImages.map((image, index) => (
               <CarouselItem key={image.id}>
                 <Image
                   src={image.imageUrl}
@@ -50,7 +50,7 @@ export default function AuthLayout({
                   fill
                   className="object-cover"
                   data-ai-hint={image.imageHint}
-                  priority={image.id === 'auth-background-1'}
+                  priority={index === 0}
                 />
               </CarouselItem>
             ))}
