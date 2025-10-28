@@ -23,15 +23,27 @@ export const teamMembers: TeamMember[] = [
   },
   {
     name: 'Aniket Kumar',
-    rollNumber: '21053245',
+    rollNumber: '22053293',
     linkedin: 'https://www.linkedin.com/in/aniket-kumar-85a539229/',
     imageUrl: 'https://picsum.photos/seed/dev2/200/200',
   },
   {
     name: 'Anshu Kumar',
-    rollNumber: '21051289',
+    rollNumber: '22053284',
     linkedin: 'https://www.linkedin.com/in/anshu-kumar-108b35248/',
     imageUrl: 'https://picsum.photos/seed/dev3/200/200',
+  },
+   {
+    name: 'Ayush Kumar',
+    rollNumber: '22053613',
+    linkedin: 'https://www.linkedin.com/',
+    imageUrl: 'https://picsum.photos/seed/dev4/200/200',
+  },
+   {
+    name: 'Yash Vardhan',
+    rollNumber: '22052323',
+    linkedin: 'https://www.linkedin.com/',
+    imageUrl: 'https://picsum.photos/seed/dev5/200/200',
   },
 ];
 

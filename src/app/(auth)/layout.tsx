@@ -5,6 +5,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 const quotes = [
   {
@@ -36,6 +37,8 @@ const quotes = [
     author: 'VigilanteAI',
   },
 ];
+
+const contributors = ['22051564', '22053293', '22053284', '22053613', '22052323'];
 
 export default function AuthLayout({
   children,
@@ -83,6 +86,10 @@ export default function AuthLayout({
               users analyze websites for basic security issues and gather
               useful information through integrated OSINT and scanning tools.
             </p>
+             <div className="text-xs text-muted-foreground pt-2">
+              <p>Major Project-1</p>
+              <p>B.Tech Computer Science and Engineering - 2022 Batch</p>
+            </div>
           </div>
           <div>
             <p className="text-lg">"{currentQuote.text}"</p>
@@ -90,9 +97,17 @@ export default function AuthLayout({
               - {currentQuote.author}
             </footer>
           </div>
+           <div className="text-center text-xs text-muted-foreground">
+            <p>Contributors: {contributors.join(' | ')}</p>
+          </div>
         </div>
       </div>
-      <div className="flex w-full items-center justify-center bg-background p-4 lg:w-1/2">
+      <div className="flex w-full items-center justify-center bg-background p-4 lg:w-1/2 relative">
+         <div className="absolute top-4 right-4">
+            <Button variant="link" asChild>
+                <Link href="/about">Project Overview</Link>
+            </Button>
+        </div>
         {children}
       </div>
     </div>
