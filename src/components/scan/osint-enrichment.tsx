@@ -110,6 +110,9 @@ export function OsintEnrichment({ url }: { url: string }) {
   const vtStats = data?.virusTotal?.last_analysis_stats;
   const totalEngines = vtStats ? Object.values(vtStats).reduce((a, b) => a + b, 0) : 0;
   const maliciousCount = vtStats?.malicious || 0;
+  const lastModificationDate = data?.virusTotal?.last_modification_date
+    ? new Date(data.virusTotal.last_modification_date * 1000).toLocaleDateString()
+    : 'N/A';
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
@@ -135,7 +138,7 @@ export function OsintEnrichment({ url }: { url: string }) {
                 <Separator />
                  <InfoRow icon={Globe} label="Reputation Score" value={data.virusTotal?.reputation ?? 'N/A'} />
                  <Separator />
-                <InfoRow icon={FileText} label="Last Modified" value={data.virusTotal?.last_modification_date ?? 'N/A'} />
+                <InfoRow icon={FileText} label="Last Modified" value={lastModificationDate} />
                 </>
             ) : (
                 <p className='text-sm text-muted-foreground'>No VirusTotal data available.</p>

@@ -16,7 +16,7 @@ export const virusTotalInfoSchema = z.object({
     timeout: z.number(),
   }),
   reputation: z.number(),
-  last_modification_date: z.number().transform((epoch) => new Date(epoch * 1000).toLocaleDateString()),
+  last_modification_date: z.number(), // Removed transform
   whois: z.string().optional(),
 });
 
