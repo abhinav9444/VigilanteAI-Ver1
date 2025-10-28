@@ -34,12 +34,46 @@ function InfoRow({
   );
 }
 
+// Function to parse the User Agent string
+const parseUserAgent = (ua: string): string => {
+    if (!ua) return 'Unknown';
+    try {
+        let browser = 'Unknown Browser';
+        let os = 'Unknown OS';
+
+        // OS Detection
+        if (ua.includes('Win')) os = 'Windows';
+        else if (ua.includes('Mac')) os = 'macOS';
+        else if (ua.includes('Linux')) os = 'Linux';
+        else if (ua.includes('Android')) os = 'Android';
+        else if (ua.includes('like Mac')) os = 'iOS'; // For iPad/iPhone
+
+        // Browser Detection
+        const chromeMatch = ua.match(/Chrome\/([\d.]+)/);
+        const firefoxMatch = ua.match(/Firefox\/([\d.]+)/);
+        const safariMatch = ua.match(/Safari\/([\d.]+)/);
+        const edgeMatch = ua.match(/Edg\/([\d.]+)/);
+
+        if (edgeMatch) browser = `Edge ${edgeMatch[1]}`;
+        else if (chromeMatch && !ua.includes('Edg')) browser = `Chrome ${chromeMatch[1]}`;
+        else if (firefoxMatch) browser = `Firefox ${firefoxMatch[1]}`;
+        else if (safariMatch && !chromeMatch) browser = `Safari ${safariMatch[1]}`;
+        
+        return `${browser} on ${os}`;
+    } catch (e) {
+        return ua; // Fallback to raw string on error
+    }
+}
+
+
 export function ChainOfCustodyInfo({ coc }: { coc: ChainOfCustody }) {
   const formatDate = (timestamp: Timestamp | string | undefined) => {
     if (!timestamp) return 'N/A';
     if (typeof timestamp === 'string') return new Date(timestamp).toLocaleString();
     return timestamp.toDate().toLocaleString();
   };
+
+  const simplifiedUserAgent = parseUserAgent(coc.userAgent);
 
   return (
     <Card>
@@ -62,7 +96,7 @@ export function ChainOfCustodyInfo({ coc }: { coc: ChainOfCustody }) {
         <InfoRow
           icon={Fingerprint}
           label="User Agent"
-          value={coc.userAgent}
+          value={simplifiedUserAgent}
         />
       </CardContent>
     </Card>
