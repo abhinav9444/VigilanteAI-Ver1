@@ -4,29 +4,16 @@ import { VigilanteAiLogo } from '@/components/logo';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { useTheme } from "next-themes";
-import { useEffect, useRef } from 'react';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
-import Fade from "embla-carousel-fade";
+import { useEffect } from 'react';
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const authBgImages = PlaceHolderImages.filter(
-    (img) => img.id.startsWith('auth-background')
+  const authBgImage = PlaceHolderImages.find(
+    (img) => img.id === 'auth-background-1'
   );
-  
-  const autoplay = useRef(
-    Autoplay({ delay: 10000, stopOnInteraction: false, stopOnMouseEnter: true })
-  );
-
-  const fade = useRef(Fade());
 
   // Auth pages look best in dark mode
   const { setTheme } = useTheme();
@@ -37,31 +24,16 @@ export default function AuthLayout({
   return (
     <div className="flex min-h-screen w-full">
       <div className="relative hidden w-1/2 lg:block">
-        <Carousel
-          className="absolute inset-0"
-          plugins={[autoplay.current, fade.current]}
-          opts={{
-            loop: true,
-          }}
-        >
-          <CarouselContent className="m-0 h-full">
-            {authBgImages.map((image, index) => (
-              <CarouselItem key={image.id} className="p-0">
-                <div className="relative h-full w-full">
-                  <Image
-                    src={image.imageUrl}
-                    alt={image.description}
-                    fill
-                    className="object-cover"
-                    data-ai-hint={image.imageHint}
-                    priority={index === 0}
-                  />
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
-
+        {authBgImage && (
+            <Image
+                src={authBgImage.imageUrl}
+                alt={authBgImage.description}
+                fill
+                className="object-cover"
+                data-ai-hint={authBgImage.imageHint}
+                priority
+            />
+        )}
         <div className="relative z-10 flex h-full flex-col justify-between bg-zinc-900/80 p-8 text-primary-foreground">
           <div className="flex items-center gap-2 text-2xl font-bold">
             <VigilanteAiLogo className="h-8 w-8" />
