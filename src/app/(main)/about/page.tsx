@@ -200,7 +200,7 @@ export default function AboutPage() {
          <Card className="mt-4">
             <CardContent className="p-6 text-muted-foreground">
                 <p>
-                We extend our sincere gratitude to our guide, Dr. Ranjita Kumari Dash, for her mentorship, and to the Department of Computer Science for continuous support.
+                We extend our sincere gratitude to our guide, Dr. Ranjita Kumari Dash, for her mentorship, and to the Department of Computer Science and Engineering for continuous support.
                 </p>
             </CardContent>
         </Card>
