@@ -29,10 +29,10 @@ type UserProfile = {
 
 // Helper function for adding footers to PDF
 const addFooters = (pdf: jsPDF) => {
-    const pageCount = pdf.internal.pageSize.getHeight() > 840 ? pdf.internal.pages.length -1 : pdf.internal.pages.length - 2;
+    const pageCount = pdf.getNumberOfPages();
     pdf.setFont('helvetica', 'italic');
     pdf.setFontSize(8);
-    for (let i = 1; i <= pageCount + 1; i++) {
+    for (let i = 1; i <= pageCount; i++) {
         pdf.setPage(i);
         pdf.text(
             `© ${new Date().getFullYear()} VigilanteAI. All rights reserved.`,
@@ -41,7 +41,7 @@ const addFooters = (pdf: jsPDF) => {
             { align: 'center' }
         );
         pdf.text(
-            `Page ${i} of ${pageCount+1}`,
+            `Page ${i} of ${pageCount}`,
             pdf.internal.pageSize.width - 20,
             pdf.internal.pageSize.height - 10
         );
@@ -369,7 +369,7 @@ export function ReportHeader({
         addDisclaimerText('', [
           'You will only scan systems, websites, or networks that you personally own or for which you have explicit, written consent from the owner.',
           'You understand that unauthorized vulnerability scanning, penetration testing, or exploitation of third-party systems may violate laws such as the Indian IT Act 2000, the Computer Misuse Act, or other regional cybersecurity regulations.',
-          'The developers, contributors, and maintainers of VigilanteAI assume no liability for misuse, damages, or legal consequences arising from unauthorized or unethical use of this software.'
+          'The developers, contributors, and maintainers of VigilanteAI assume no liability for misuse, damages, or legal consequences from unauthorized or unethical use of this software.'
         ], true);
         
         addDisclaimerText('', 'This tool should be used for defensive and educational cybersecurity purposes only, such as:');
