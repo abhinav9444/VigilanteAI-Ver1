@@ -35,7 +35,7 @@ export function UserNav() {
   };
 
   if (isUserLoading) {
-    return <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />;
+    return <div data-testid="loading-skeleton" className="h-8 w-8 rounded-full bg-muted animate-pulse" />;
   }
 
   if (!user) {
