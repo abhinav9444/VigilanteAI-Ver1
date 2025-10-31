@@ -12,8 +12,9 @@ const config: Config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    // Mock lucide-react
+    '^lucide-react$': '<rootDir>/__mocks__/lucide-react.tsx',
   },
-  preset: 'ts-jest',
 };
 
 export default createJestConfig(config);
