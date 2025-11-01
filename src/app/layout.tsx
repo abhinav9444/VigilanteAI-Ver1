@@ -15,6 +15,24 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const content = (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <FirebaseClientProvider>
+        {children}
+        <Toaster />
+      </FirebaseClientProvider>
+    </ThemeProvider>
+  );
+
+  if (process.env.NODE_ENV === 'test') {
+    return content;
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -34,17 +52,7 @@ export default function RootLayout({
         />
       </head>
       <body className={cn("font-body antialiased", "dark:bg-grid-slate-900")}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <FirebaseClientProvider>
-            {children}
-            <Toaster />
-          </FirebaseClientProvider>
-        </ThemeProvider>
+        {content}
       </body>
     </html>
   );
