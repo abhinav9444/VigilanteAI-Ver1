@@ -14,14 +14,13 @@ jest.mock('@/components/theme-provider', () => ({
 
 describe('RootLayout', () => {
   it('should render its children and providers', () => {
-    render(
+    const { container } = render(
       <RootLayout>
         <div>Test Child</div>
-      </RootLayout>,
-      { container: document.body }
+      </RootLayout>
     );
 
-    expect(screen.getByText('Test Child')).toBeInTheDocument();
+    expect(container.querySelector('div')).toHaveTextContent('Test Child');
     expect(screen.getByTestId('firebase-provider')).toBeInTheDocument();
     expect(screen.getByTestId('theme-provider')).toBeInTheDocument();
   });
