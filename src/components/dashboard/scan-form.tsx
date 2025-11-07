@@ -27,7 +27,7 @@ const SCAN_LOGS = [
   'Target confirmed. Initializing scanners...',
   'Analyzing web server configuration...',
   'Dispatching AI analysis agents to probe for weaknesses...',
-  'Generating hypothetical vulnerability report based on common attack vectors...',
+  'Generating vulnerability report based on found attack vectors...',
   'Probing for SQL injection vectors...',
   'Looking for Cross-Site Scripting (XSS) opportunities...',
   'Checking for insecure headers and misconfigurations...',
