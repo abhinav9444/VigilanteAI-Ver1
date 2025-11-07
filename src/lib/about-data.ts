@@ -22,22 +22,29 @@ export const teamMembers: TeamMember[] = [
     imageUrl: 'https://media.licdn.com/dms/image/v2/C4D03AQGJv3A3CiijhQ/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1659711667949?e=1762992000&v=beta&t=UuEsknmuGFIzsAPS59tRxz-iUyK_xSbQJ9ha_H-Krt8',
   },
   {
-    name: 'Aniket Kumar',
-    rollNumber: '22053293',
-    linkedin: 'https://www.linkedin.com/in/aniket-kumar-85a539229/',
-    imageUrl: 'https://picsum.photos/seed/dev2/200/200',
+    name: 'Prateek Chakraborty ',
+    rollNumber: '22052323',
+    linkedin: 'https://www.linkedin.com/in/pratik-chakraborty090821?utm_source=share_via&utm_content=profile&utm_medium=member_android',
+    imageUrl: 'https://media.licdn.com/dms/image/v2/D5603AQEC1N9n9zgdUQ/profile-displayphoto-scale_400_400/B56ZkYQGZ0G4A0-/0/1757048498403?e=1764201600&v=beta&t=ZttmCX2DBdK77mh7xMewQT0NCTGbV5g1cu5NAPQv75k',
   },
   {
-    name: 'Anshu Kumar',
-    rollNumber: '22053284',
-    linkedin: 'https://www.linkedin.com/in/anshu-kumar-108b35248/',
-    imageUrl: 'https://picsum.photos/seed/dev3/200/200',
+    name: 'Pranab Nandi',
+    rollNumber: '22053613',
+    linkedin: 'https://www.linkedin.com/in/pranabnandi/',
+    imageUrl: '',
   },
    {
-    name: 'Yash Vardhan',
-    rollNumber: '22052323',
-    linkedin: 'https://www.linkedin.com/',
-    imageUrl: 'https://picsum.photos/seed/dev5/200/200',
+    name: 'Soujanya',
+    rollNumber: '22053284',
+    linkedin: '',
+    imageUrl: '',
+  },
+
+  {
+    name: 'Sudeep Patra',
+    rollNumber: '22053293',
+    linkedin: 'https://www.linkedin.com/in/sudeep-patra-306856204/',
+    imageUrl: 'https://media.licdn.com/dms/image/v2/D5635AQFfmMkZ_LCLLA/profile-framedphoto-shrink_400_400/B56Zlzn3EaIsAk-/0/1758581453438?e=1763118000&v=beta&t=lNGm1Vn0g_vGcF-5zpq_cgxIHGxWY4Nr8qAyY1GdVmg',
   },
 ];
 
